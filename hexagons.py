@@ -167,8 +167,8 @@ def pixel_to_hex(layout, p):
     size = layout.size
     origin = layout.origin
     pt = Point((p.x - origin.x) / size.x, (p.y - origin.y) / size.y)
-    q = M.b0 * pt.x + M.b1 * pt.y
-    r = M.b2 * pt.x + M.b3 * pt.y
+    q = round(M.b0 * pt.x + M.b1 * pt.y)
+    r = round(M.b2 * pt.x + M.b3 * pt.y)
     return Hex(q, r, -q - r)
 
 def hex_corner_offset(layout, corner):
