@@ -39,11 +39,12 @@ canvas.pack()
 
 # Load the images
 # Image sizes 60x60 (?)
-white_pawn = tkinter.PhotoImage(file="white_pawn.png")
+white_pawn_image = tkinter.PhotoImage(file="white_pawn.png")
 
 # Stuff to draw on canvas
 for hex in hex_corners:
     canvas.create_polygon(hex[0], fill=hex[1])
-something = drag_and_drop.Example(window, canvas, white_pawn, BOARD_LAYOUT, BOARD_LENGTH)
+something = drag_and_drop.Example(window, canvas, BOARD_LAYOUT, BOARD_LENGTH)
+white_pawn = something.create_image_token(300, 100, white_pawn_image)
 
 window.mainloop()
