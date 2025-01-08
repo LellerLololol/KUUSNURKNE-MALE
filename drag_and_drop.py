@@ -1,5 +1,6 @@
 import tkinter
 import hexagons
+import chess_piece_movement as cpm
 
 class Example(tkinter.Frame):
     """Illustrate how to drag items on a Tkinter canvas"""
@@ -18,8 +19,8 @@ class Example(tkinter.Frame):
         self.layout = layout
         self.bsize = bsize
 
-        # create a couple of movable objects
-        #self.create_image_token(300, 100, self.image)
+        # List for the chess pieces (chess pices are loaded in draw_board.py)
+        self.chess_pieces = []
 
         # add bindings for clicking, dragging and releasing over
         # any object with the "token" tag
@@ -39,11 +40,11 @@ class Example(tkinter.Frame):
             tags=("token",),
         )
 
-    def create_image_token(self, x, y, image):
+    def create_image_token(self, xy, image):
         '''Create a token at the given coordinate with the given image'''
         self.canvas.create_image(
-            x,
-            y,
+            xy[0],
+            xy[1],
             image=image,
             tags=('token')
         )
@@ -58,16 +59,29 @@ class Example(tkinter.Frame):
 
     def drag_stop(self, event):
         """End drag of an object"""
-        # Lock the object on a hexagon
         current_hex = hexagons.pixel_to_hex(self.layout, hexagons.Point(self._drag_data['x'], self._drag_data['y']))
         cur_coords = self.canvas.coords(self._drag_data['item'])
-        if -self.bsize <= current_hex.q <= self.bsize and -self.bsize <= current_hex.r <= self.bsize and -self.bsize <= current_hex.s <= self.bsize and self.canvas.type(self._drag_data['item']) != 'polygon':
+        inbounds = all(map(lambda x: -self.bsize <= x <= self.bsize, current_hex))
+        
+        # Find the object from the position
+        start_coords = hexagons.pixel_to_hex(self.layout, hexagons.Point(self._drag_data['previous'][0], self._drag_data['previous'][1]))
+        for obj in self.chess_pieces:
+            if start_coords == obj.position:
+                cur_object = obj
+                cur_type = obj.type
+                break
+            
+        # Lock the object on a hexagon
+        if inbounds and self.canvas.type(self._drag_data['item']) != 'polygon' and eval(f'cur_object.{cur_type}_move(current_hex)'):
             # object is in boundaries: lock it in the middle of hex
+            # object also does a legal move
             # object itself is also not a hex
             lock_coords = hexagons.hex_to_pixel(self.layout, current_hex)
             self.canvas.move(self._drag_data['item'], 
                              lock_coords[0] - cur_coords[0],
                              lock_coords[1] - cur_coords[1])
+            cur_object.position = current_hex
+            cur_object.first_move = False
         else:
             # object is out of boundaries: move it back to the place it started
             self.canvas.move(self._drag_data['item'], 

@@ -2,6 +2,7 @@ import tkinter
 import random
 from hexagons import *
 import drag_and_drop
+import chess_piece_movement as cpm
 
 # layout_flat/layout_pointy; size; origin point
 BOARD_LAYOUT = Layout(layout_flat, Point(45, 45), Point(500, 450))
@@ -38,13 +39,32 @@ canvas = tkinter.Canvas(window, width=1000, height=900, bg='light gray')
 canvas.pack()
 
 # Load the images
-# Image sizes 60x60 (?)
-white_pawn_image = tkinter.PhotoImage(file="white_pawn.png")
+# Current sizes 60x60
+white_pawn_image = tkinter.PhotoImage(file=r'assets\white_pawn.png')
+white_bishop_image = tkinter.PhotoImage(file=r'assets\white_pawn.png')
+white_knight_image = tkinter.PhotoImage(file=r'assets\white_knight.png')
+white_rook_image = tkinter.PhotoImage(file=r'assets\white_rook.png')
+white_queen_image = tkinter.PhotoImage(file=r'assets\white_queen.png')
+white_king_image = tkinter.PhotoImage(file=r'assets\white_king.png')
 
-# Stuff to draw on canvas
+# Draw the chess board
 for hex in hex_corners:
     canvas.create_polygon(hex[0], fill=hex[1])
 something = drag_and_drop.Example(window, canvas, BOARD_LAYOUT, BOARD_LENGTH)
-white_pawn = something.create_image_token(300, 100, white_pawn_image)
+
+# Load the chess pieces (this code will be optimized after all chess pieces will be loaded in the correct positions)
+white_pawn = cpm.Chessp('p', something.create_image_token((hex_to_pixel(BOARD_LAYOUT, Hex(0, 0, 0))), white_pawn_image), Hex(0, 0, 0), True)
+white_bishop = cpm.Chessp('b', something.create_image_token((hex_to_pixel(BOARD_LAYOUT, Hex(1, 0, -1))), white_bishop_image), Hex(1, 0, -1), True)
+white_knight = cpm.Chessp('n', something.create_image_token((hex_to_pixel(BOARD_LAYOUT, Hex(2, -1, -1))), white_knight_image), Hex(2, -1, -1), True)
+white_rook = cpm.Chessp('r', something.create_image_token((hex_to_pixel(BOARD_LAYOUT, Hex(-1, 1, 0))), white_rook_image), Hex(-1, 1, 0), True)
+white_queen = cpm.Chessp('q', something.create_image_token((hex_to_pixel(BOARD_LAYOUT, Hex(-2, 1, 1))), white_queen_image), Hex(-2, 1, 1), True)
+white_king = cpm.Chessp('k', something.create_image_token((hex_to_pixel(BOARD_LAYOUT, Hex(0, 3, -3))), white_king_image), Hex(0, 3, -3), True)
+
+something.chess_pieces.append(white_pawn)
+something.chess_pieces.append(white_bishop)
+something.chess_pieces.append(white_knight)
+something.chess_pieces.append(white_rook)
+something.chess_pieces.append(white_queen)
+something.chess_pieces.append(white_king)
 
 window.mainloop()
