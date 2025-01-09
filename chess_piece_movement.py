@@ -61,7 +61,3 @@ class Chessp():
 					if Hex(q, r, s) not in map(lambda x: x.position, Chessp.chess_pieces) and all(map(lambda x: -5 <= x <= 5, [q, r, s])):
 						valid_spaces.append(Hex(q, r, s))
 		return valid_spaces
-	
-		for i, j in enumerate(['a', 'b', 'c']):
-			exec(f'{j} = {i}')
-		print(a)
