@@ -44,8 +44,9 @@ class Chessp():
 	def n_move(self):
 		"""Checks for legal horsey moves"""
 
-		# i wanted to do this with execs but they hate me and i hate them so this doesn't work
+		# i wanted to do this with execs but they hate me and i hate them so this does work
 		# globals()["{string}"] is a lifesaver
+		# also if possible do find a way to kill the 12 """"errors""""
 		valid_spaces = []
 		directions = ['q', 'r', 's']
 		for dire in directions:
