@@ -40,7 +40,7 @@ class Chessp():
 			i = 1
 			enum_pos = list(enumerate(self.position))
 			enum_range = range(len(enum_pos))
-			while all(map(lambda x, y: -5 <= eval(f'{y} {dire[x]} {i}') <= 5, map(lambda x: enum_pos[x][0], enum_range), map(lambda x: enum_pos[x][0], enum_range))):
+			while all(map(lambda x, y: -5 <= eval(f'{y} {dire[x]} {i}') <= 5, map(lambda x: enum_pos[x][0], enum_range), map(lambda x: enum_pos[x][1], enum_range))):
 				q = eval(f'self.position.q {dire[0]} i')
 				r = eval(f'self.position.r {dire[1]} i')
 				s = eval(f'self.position.s {dire[2]} i')
