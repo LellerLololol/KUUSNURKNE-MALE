@@ -84,15 +84,6 @@ class Example(tkinter.Frame):
         current_hex = hexagons.pixel_to_hex(self.layout, hexagons.Point(self._drag_data['x'], self._drag_data['y']))
         cur_coords = self.canvas.coords(self._drag_data['item'])
         inbounds = all(map(lambda x: -self.bsize <= x <= self.bsize, current_hex))
-        
-        '''
-        # Find the object from the position; move?
-        start_coords = hexagons.pixel_to_hex(self.layout, hexagons.Point(self._drag_data['previous'][0], self._drag_data['previous'][1]))
-        for obj in self.chess_pieces:
-            if start_coords == obj.position:
-                cur_object = obj
-                break
-        '''
                            
         # Lock the object on a hexagon
         if inbounds and self.canvas.type(self._drag_data['item']) != 'polygon' and current_hex in self._drag_data['moves']:#eval(f'cur_object.{cur_type}_move()'):
