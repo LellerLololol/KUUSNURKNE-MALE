@@ -76,9 +76,8 @@ class Example(tkinter.Frame):
                 self._drag_data['moves'] = eval(f'obj.{obj.type}_move()')
                 self._drag_data['object'] = obj
                 for move in self._drag_data['moves']:  # Draws all possible spaces for a move
-                    print(move)
                     self.create_temp_image(hexagons.hex_to_pixel(self.layout, move), self.move_image)
-                break
+            
 
     def drag_stop(self, event):
         """End drag of an object"""
