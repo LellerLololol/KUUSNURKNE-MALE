@@ -41,7 +41,7 @@ canvas.pack()
 # Load the images
 # Current sizes 60x60
 white_pawn_image = tkinter.PhotoImage(file=r'assets\white_pawn.png')
-white_bishop_image = tkinter.PhotoImage(file=r'assets\white_pawn.png')
+white_bishop_image = tkinter.PhotoImage(file=r'assets\white_bishop.png')
 white_knight_image = tkinter.PhotoImage(file=r'assets\white_knight.png')
 white_rook_image = tkinter.PhotoImage(file=r'assets\white_rook.png')
 white_queen_image = tkinter.PhotoImage(file=r'assets\white_queen.png')
