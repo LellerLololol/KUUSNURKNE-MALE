@@ -46,9 +46,10 @@ class Chessp():
 
 		# i wanted to do this with execs but they hate me and i hate them so this does work
 		# globals()["{string}"] is a lifesaver
-		# also if possible do find a way to kill the 12 """"errors""""
+		# also if possible do find a way to kill the 9 """"errors""""
 		valid_spaces = []
 		directions = ['q', 'r', 's']
+		q, r, s = None, None, None
 		for dire in directions:
 			others = list(directions)
 			others.remove(dire)
@@ -57,7 +58,31 @@ class Chessp():
 				for horseys in [[2, 1], [1, 2]]:
 					for pos, kw in enumerate(others):
 						exec(f'globals()["{kw}"] = {signs[1]}{horseys[pos]} + self.position.{kw}')
-					print(q, r, s)
 					if Hex(q, r, s) not in map(lambda x: x.position, Chessp.chess_pieces) and all(map(lambda x: -5 <= x <= 5, [q, r, s])):
 						valid_spaces.append(Hex(q, r, s))
+		return valid_spaces
+
+	def b_move(self):
+		"""Checks for legal bishop moves"""
+
+		valid_spaces = []
+		directions = ['q', 'r', 's']
+		q, r, s = None, None, None
+		value_const = {'q': self.position.q, 'r': self.position.r, 's': self.position.s}
+		signs = ['+', '-']
+		for dire in directions:
+			others = list(directions)
+			others.remove(dire)
+			for sign in signs:
+				i = eval(f'{sign}1')
+				while all(map(lambda x: -5 <= eval(f'{value_const}.get("{x}") + {i}') <= 5, directions)):
+					stabiliser = 0
+					for tj in others:
+						exec(f'globals()["{tj}"] = {value_const}.get("{tj}") + {i}')
+						print(r)  # This stays none - the valeus aren't changed for some reason
+						stabiliser -= eval(f'{tj}')
+					exec(f'globals()["{dire}"] = -values[0]-values[1]')
+					if Hex(q, r, s) not in map(lambda x: x.position, Chessp.chess_pieces):
+						valid_spaces.append(Hex(q, r, s))
+					i += eval(f'{sign}1')
 		return valid_spaces
