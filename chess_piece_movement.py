@@ -2,6 +2,10 @@ from hexagons import *
 import itertools
 
 class Chessp():
+
+	# REWORK ALL MOVEMENTS
+	# MOVEMENTS ARE IN STATIC DIRECTIONS - RECORD THE CHANGE AND STORE THEM IN A LIST
+	# NO COMPLEX EXEC AND FOR NESTED FOR LOOPS
 	
 	chess_pieces = []
 	def __init__(self, type, object, pos, hm):
