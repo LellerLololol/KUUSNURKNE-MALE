@@ -3,10 +3,11 @@ import itertools
 
 class Chessp():
     
+    pawn_move = Hex(0, -1, 1)
     rook_moves = [Hex(1, -1, 0), Hex(-1, 1, 0), Hex(1, 0, -1), Hex(-1, 0, 1), Hex(0, 1, -1), Hex(0, -1, 1)]
     knight_moves = [Hex(1, 2, -3), Hex(2, 1, -3), Hex(-1, -2, 3), Hex(-2, -1, 3), Hex(1, -3, 2), Hex(2, -3, 1), Hex(-1, 3, -2), Hex(-2, 3, -1), Hex(-3, 1, 2), Hex(-3, 2, 1), Hex(3, -1, -2), Hex(3, -2, -1)]
     bishop_moves = [Hex(1, 1, -2), Hex(-1, -1, 2), Hex(1, -2, 1), Hex(-1, 2, -1), Hex(-2, 1, 1), Hex(2, -1, -1)]
-    
+
     chess_pieces = []
     def __init__(self, type, object, pos, hm):
         
@@ -17,17 +18,26 @@ class Chessp():
         Chessp.chess_pieces.append(self)
         
     def check(self, dire, i):
-        return all(map(lambda x: -5 <= x * i <= 5, dire)) and Hex(dire[0] * i, dire[1] * i, dire[2] * i) not in map(lambda x: x.position, Chessp.chess_pieces)
+        # i told myself to make more readable code wth is this
+        return all(map(lambda x, y: -5 <= y + x * i <= 5, dire, self.position)) and Hex(self.position.q + dire[0] * i, self.position.r + dire[1] * i, self.position.s + dire[2] * i) not in map(lambda x: x.position, Chessp.chess_pieces)
         
+    def get_hex(self, dire, i):
+        """Get Hex dependinding on the direction, current position and direction multiplier"""
+
+        q = self.position.q + dire[0] * i
+        r = self.position.r + dire[1] * i
+        s = self.position.s + dire[2] * i
+        return Hex(q, r, s)
+
     def p_move(self):
         """Gives all possible pawn moves"""
         
         valid_spaces = []
         pos = self.position
-        if self.first_move and self.check(Hex(pos[0], pos[1] - 2, pos[2] + 2), 1):  # First move - can move 2 spaces forward
-            valid_spaces.append(Hex(pos[0], pos[1] - 2, pos[2] + 2))
-		if self.check(Hex(pos[0], pos[1] - 1, pos[2] + 1), 1):
-            valid_spaces.append(Hex(pos[0], pos[1] - 1, pos[2] + 1))
+        if self.first_move and self.check(self.pawn_move, 2):  # First move - can move 2 spaces forward
+            valid_spaces.append(self.get_hex(self.pawn_move, 2))
+        if self.check(self.pawn_move, 1):
+            valid_spaces.append(self.get_hex(self.pawn_move, 1))
         return valid_spaces
     
     def r_move(self):
@@ -37,18 +47,18 @@ class Chessp():
         for dire in Chessp.rook_moves:
             i = 1
             while self.check(dire, i):
-                valid_spaces.append(Hex(dire[0] * i, dire[1] * i, dire[2] * i))
+                valid_spaces.append(self.get_hex(dire, i))
                 i += 1
         return valid_spaces
         
-    def b_moves(self):
+    def b_move(self):
         """Gives all possible bishop moves"""
         
         valid_spaces = []
         for dire in Chessp.bishop_moves:
             i = 1
             while self.check(dire, i):
-                valid_spaces.append(Hex(dire[0] * i, dire[1] * i, dire[2] * i))
+                valid_spaces.append(self.get_hex(dire, i))
                 i += 1
         return valid_spaces
         
@@ -58,7 +68,7 @@ class Chessp():
         valid_spaces = []
         for dire in Chessp.knight_moves:
             if self.check(dire, 1):
-                valid_spaces.append(Hex(dire[0] * i, dire[1] * i, dire[2] * i))
+                valid_spaces.append(self.get_hex(dire, 1))
         return valid_spaces
         
     def k_move(self):
@@ -67,13 +77,13 @@ class Chessp():
         valid_spaces = []
         for dire in Chessp.rook_moves:
             if self.check(dire, 1):
-                valid_spaces.append(Hex(dire[0] * i, dire[1] * i, dire[2] * i))
+                valid_spaces.append(self.get_hex(dire, 1))
         return valid_spaces
         
     def q_move(self):
         """Gives all possible queen moves"""
         
-        valid_spaces = r_move()
-        for i in b_move():
+        valid_spaces = self.r_move()
+        for i in self.b_move():
             valid_spaces.append(i)
         return valid_spaces
