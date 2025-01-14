@@ -3,15 +3,17 @@ import itertools
 
 class Chessp():
     
-    pawn_move = Hex(0, -1, 1)
+    white_pawn_move = Hex(0, -1, 1)
+    black_pawn_move = Hex(0, 1, -1)
     rook_moves = [Hex(1, -1, 0), Hex(-1, 1, 0), Hex(1, 0, -1), Hex(-1, 0, 1), Hex(0, 1, -1), Hex(0, -1, 1)]
     knight_moves = [Hex(1, 2, -3), Hex(2, 1, -3), Hex(-1, -2, 3), Hex(-2, -1, 3), Hex(1, -3, 2), Hex(2, -3, 1), Hex(-1, 3, -2), Hex(-2, 3, -1), Hex(-3, 1, 2), Hex(-3, 2, 1), Hex(3, -1, -2), Hex(3, -2, -1)]
     bishop_moves = [Hex(1, 1, -2), Hex(-1, -1, 2), Hex(1, -2, 1), Hex(-1, 2, -1), Hex(-2, 1, 1), Hex(2, -1, -1)]
 
     chess_pieces = []
-    def __init__(self, type, object, pos, hm):
+    def __init__(self, type, color, object, pos, hm):
         
         self.type = type
+        self.color = color
         self.object = object
         self.position = pos  # In Hex
         self.first_move = hm
@@ -29,16 +31,26 @@ class Chessp():
         s = self.position.s + dire[2] * i
         return Hex(q, r, s)
 
-    def p_move(self):
-        """Gives all possible pawn moves"""
+    def p_move(self, type):
+        """Gives all possible pawn moves (both white and black)"""
         
         valid_spaces = []
-        pos = self.position
-        if self.first_move and self.check(self.pawn_move, 2):  # First move - can move 2 spaces forward
-            valid_spaces.append(self.get_hex(self.pawn_move, 2))
-        if self.check(self.pawn_move, 1):
-            valid_spaces.append(self.get_hex(self.pawn_move, 1))
+        pawn_move = eval(f'self.{type}_pawn_move')
+        if self.check(pawn_move, 1):
+            valid_spaces.append(self.get_hex(pawn_move, 1))
+            if self.first_move and self.check(pawn_move, 2):  # First move - can move 2 spaces forward
+                valid_spaces.append(self.get_hex(pawn_move, 2))
         return valid_spaces
+    
+    def wp_move(self):
+        """Gives all possible white pawn moves"""
+
+        return self.p_move('white')
+    
+    def bp_move(self):
+        """Gives all possible black pawn moves"""
+
+        return self.p_move('black')
     
     def r_move(self):
         """Gives all possible rook moves"""
