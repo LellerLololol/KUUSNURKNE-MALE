@@ -21,9 +21,10 @@ class Example(tkinter.Frame):
 
         # List for the chess pieces (chess pices are loaded in draw_board.py)
         self.chess_pieces = []
+        self.obj_to_id = {}
 
         # Load the image
-        self.move_image = tkinter.PhotoImage(file=r'assets\select.png')
+        self.move_image = tkinter.PhotoImage(file=r'select.png')
 
         # add bindings for clicking, dragging and releasing over
         # any object with the "token" tag
@@ -77,7 +78,6 @@ class Example(tkinter.Frame):
                 self._drag_data['object'] = obj
                 for move in self._drag_data['moves']:  # Draws all possible spaces for a move
                     self.create_temp_image(hexagons.hex_to_pixel(self.layout, move), self.move_image)
-            
 
     def drag_stop(self, event):
         """End drag of an object"""
@@ -96,6 +96,18 @@ class Example(tkinter.Frame):
                              lock_coords[1] - cur_coords[1])
             self._drag_data['object'].position = current_hex
             self._drag_data['object'].first_move = False
+            
+            # chech if you can KILL
+            yrururururururururururururururururururururururururururururururururururururururururururururururururuurururururururururururururururururururururururururururururururururururururururururuururururururuururururururuurururururururururuurururururuurururururururururururururururururuururururruururururururururururuurururururururururururururururururururuurururururururuurururururuururururuurururuurururururuururururururururuurururururururuurururururuurururururururururururuurururururururuururururururururururururururuururururururuururururururuurururururuururururururuururururururuurururururururururuururururururururuurururururuururuurururururuururururururururururuururururururururururururuuurururururururururururuururururururururururururuurururururururuururururururuururururuururururururururururururururururururuurururururururuurururururururururururuurururururururururuururururururuururururururururuurururururuurururuururururuuurururururuururururuuururururururururuururururururuurururuururururururuurururururururuurururururururuururururururuurururuururururuurururururur = 'idk'
+            takeable = [i for i in cpm.Chessp.chess_pieces if i.position == current_hex]
+            if takeable != []:
+                self.canvas.move(takeable[0].object, 
+                             -1000,
+                             -1000)
+                #cpos = hexagons.hex_to_pixel(self.layout, takeable[0].position)
+                #self.canvas.move(self.canvas.find_closest(cpos[0], cpos[1])[0], -1000, -1000)
+                #self.canvas.move(self._drag_data['item'], 1000, 1000)
+                takeable[0].deinit()
         else:
             # object is out of boundaries: move it back to the place it started
             self.canvas.move(self._drag_data['item'], 
