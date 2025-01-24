@@ -20,13 +20,17 @@ class Chessp():
         self.position = pos  # In Hex
         self.first_move = hm
         Chessp.chess_pieces.append(self)
+    
+    def deinit(self):
+        self.chess_pieces.remove(self)
+        self.position = Hex(-10, 10, 0)
         
     def check(self, dire, i):
         # i told myself to make more readable code wth is this
-        return all(map(lambda x, y: -5 <= y + x * i <= 5, dire, self.position)) and Hex(self.position.q + dire[0] * i, self.position.r + dire[1] * i, self.position.s + dire[2] * i) not in map(lambda x: x.position, Chessp.chess_pieces)
+        return all(map(lambda x, y: -5 <= y + x * i <= 5, dire, self.position)) and self.get_hex(dire, i) not in map(lambda x: x.position, Chessp.chess_pieces)
 
-    def take_check(self, dire):
-        return all(map(lambda x, y: -5 <= y + x <= 5, dire, self.position)) and Hex(self.position.q + dire[0], self.position.r + dire[1], self.position.s + dire[2]) in map(lambda x: x.position, Chessp.chess_pieces)
+    def take_check(self, dire, i):
+        return all(map(lambda x, y: -5 <= y + x * i <= 5, dire, self.position)) and self.get_hex(dire, i) in map(lambda x: x.position, Chessp.chess_pieces)
 
     def get_hex(self, dire, i):
         """Get Hex dependinding on the direction, current position and direction multiplier"""
@@ -35,6 +39,16 @@ class Chessp():
         r = self.position.r + dire[1] * i
         s = self.position.s + dire[2] * i
         return Hex(q, r, s)
+        
+    def checked(self, v_spaces, dire, j):
+        if self.take_check(dire, j):
+            # Need to add a check to see whether the colors are different or not
+            # Every object has a color to its name
+            # sometimes idk
+            taken = [i for i in self.chess_pieces if i.position == self.get_hex(dire, j)][0]
+            if taken.color != self.color:
+                v_spaces.append(self.get_hex(dire, j))
+        return v_spaces
 
     def p_move(self, type):
         """Gives all possible pawn moves (both white and black)"""
@@ -49,10 +63,7 @@ class Chessp():
 
         # Check if pawn can take a piece
         for pos in pawn_take:
-            if self.take_check(pos):
-                # Need to add a check to see whether the colors are different or not
-                # Every object has a color to its name
-                valid_spaces.append(self.get_hex(pos, 1))
+            valid_spaces = self.checked(valid_spaces, pos, 1)
         return valid_spaces
     
     def wp_move(self):
@@ -74,6 +85,7 @@ class Chessp():
             while self.check(dire, i):
                 valid_spaces.append(self.get_hex(dire, i))
                 i += 1
+            valid_spaces = self.checked(valid_spaces, dire, i)
         return valid_spaces
         
     def b_move(self):
@@ -85,6 +97,7 @@ class Chessp():
             while self.check(dire, i):
                 valid_spaces.append(self.get_hex(dire, i))
                 i += 1
+            valid_spaces = self.checked(valid_spaces, dire, i)
         return valid_spaces
         
     def n_move(self):
@@ -94,6 +107,7 @@ class Chessp():
         for dire in Chessp.knight_moves:
             if self.check(dire, 1):
                 valid_spaces.append(self.get_hex(dire, 1))
+            valid_spaces = self.checked(valid_spaces, dire, 1)
         return valid_spaces
         
     def k_move(self):
@@ -103,6 +117,11 @@ class Chessp():
         for dire in Chessp.rook_moves:
             if self.check(dire, 1):
                 valid_spaces.append(self.get_hex(dire, 1))
+            valid_spaces = self.checked(valid_spaces, dire, 1)
+        for dire in Chessp.bishop_moves:
+            if self.check(dire, 1):
+                valid_spaces.append(self.get_hex(dire, 1))
+            valid_spaces = self.checked(valid_spaces, dire, 1)
         return valid_spaces
         
     def q_move(self):
