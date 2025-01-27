@@ -36,6 +36,9 @@ class Example(tkinter.Frame):
         # Load the image
         self.move_image = tkinter.PhotoImage(file=r"assets/select.png")
 
+        # Define the first colour to move
+        self.color_to_move = "black"
+
         # add bindings for clicking, dragging and releasing over
         # any object with the "token" tag
         self.canvas.tag_bind("piece", "<ButtonPress-1>", self.drag_start)
@@ -68,7 +71,7 @@ class Example(tkinter.Frame):
             ),
         )
         for obj in self.chess_pieces:
-            if start_coords == obj.position:
+            if start_coords == obj.position and self.color_to_move == obj.color:
                 self._drag_data["moves"] = eval(f"obj.{obj.type}_move()")
                 self._drag_data["object"] = obj
                 for move in self._drag_data[
@@ -93,6 +96,7 @@ class Example(tkinter.Frame):
             inbounds
             and self.canvas.type(self._drag_data["item"]) != "polygon"
             and current_hex in self._drag_data["moves"]
+            and self._drag_data["object"].color == self.color_to_move
         ):
             # eval(f'cur_object.{cur_type}_move()'):
             # object is in boundaries: lock it in the middle of hex
@@ -114,6 +118,8 @@ class Example(tkinter.Frame):
                 # self.canvas.move(self._drag_data['item'], 1000, 1000)
                 # takeable[0].deinit()
 
+            # Cycle the color to move
+            self.color_to_move = "black" if self.color_to_move == "white" else "white"
             self._drag_data["object"].position = current_hex
             self._drag_data["object"].first_move = False
 
@@ -138,7 +144,10 @@ class Example(tkinter.Frame):
     def drag(self, event):
         """Handle dragging of an object"""
         # check if the object is not polygon (board)
-        if self.canvas.type(self._drag_data["item"]) != "polygon":
+        if (
+            self.canvas.type(self._drag_data["item"]) != "polygon"
+            and self._drag_data["object"].color == self.color_to_move
+        ):
             # compute how much the mouse has moved
             delta_x = event.x - self._drag_data["x"]
             delta_y = event.y - self._drag_data["y"]
