@@ -6,11 +6,11 @@ import chess_piece_movement as cpm
 class Example(tkinter.Frame):
     """Illustrate how to drag items on a Tkinter canvas"""
 
-    def __init__(self, parent, canvas, layout, board_size):
+    def __init__(self, parent, canvas: tkinter.Canvas, layout: hexagons.Layout, board_size: int):
         tkinter.Frame.__init__(self, parent)
 
         # create a canvas
-        self.canvas = canvas
+        self.canvas: tkinter.Canvas = canvas
         self.canvas.pack(fill="both", expand=True)
 
         # this data is used to keep track of an
@@ -24,12 +24,12 @@ class Example(tkinter.Frame):
             "object": "",
         }
 
-        self.layout = layout
-        self.board_size = board_size
+        self.layout: hexagons.Layout = layout
+        self.board_size: int = board_size
 
         # List for the chess pieces (chess pices are loaded in draw_board.py)
-        self.chess_pieces = []
-        self.obj_to_id = {}
+        self.chess_pieces: list[cpm.Chessp] = []
+        # self.obj_to_id = {} # TODO: Otsustada kas on vaja
 
         # Load the image
         self.move_image = tkinter.PhotoImage(file=r"assets/select.png")
@@ -40,24 +40,12 @@ class Example(tkinter.Frame):
         self.canvas.tag_bind("token", "<ButtonRelease-1>", self.drag_stop)
         self.canvas.tag_bind("token", "<B1-Motion>", self.drag)
 
-    def create_oval_token(self, x, y, color):
-        """Create a token at the given coordinate in the given color"""
-        self.canvas.create_oval(
-            x - 25,
-            y - 25,
-            x + 25,
-            y + 25,
-            outline=color,
-            fill=color,
-            tags=("token",),
-        )
-
     def create_image_token(self, xy, image):
         """Create a token at the given coordinate with the given image"""
         self.canvas.create_image(xy[0], xy[1], image=image, tags=("token"))
 
     def create_temp_image(self, xy, image):
-        """Create an image with a different token"""
+        """Create an image with a "remove" token"""
         self.canvas.create_image(xy[0], xy[1], image=image, tags=("remove"))
 
     def drag_start(self, event):
@@ -89,7 +77,7 @@ class Example(tkinter.Frame):
     def drag_stop(self, event):
         """End drag of an object"""
         current_hex = hexagons.pixel_to_hex(
-            self.layout, hexagons.Point(self._drag_data["x"], self._drag_data["y"])
+            self.layout, hexagons.Point(event.x, event.y)
         )
         cur_coords = self.canvas.coords(self._drag_data["item"])
         inbounds = all(

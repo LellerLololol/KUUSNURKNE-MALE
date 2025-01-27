@@ -41,13 +41,13 @@ class Chessp:
 
     chess_pieces = []
 
-    def __init__(self, type, color, object, pos, hm):
+    def __init__(self, type, color, object, pos, first_move):
 
         self.type = type
         self.color = color
         self.object = object
         self.position = pos  # In Hex
-        self.first_move = hm
+        self.first_move = first_move
         Chessp.chess_pieces.append(self)
 
     def deinit(self):

@@ -3,7 +3,6 @@ import random
 from hexagons import *
 import drag_and_drop
 import chess_piece_movement as cpm
-from chess_piece_layout import create_chess_pieces
 
 # layout_flat/layout_pointy; size; origin point
 BOARD_LAYOUT = Layout(layout_flat, Point(30, 30), Point(300, 320))
@@ -59,8 +58,10 @@ for hex in hex_corners:
     canvas.create_polygon(hex[0], fill=hex[1])
 something = drag_and_drop.Example(window, canvas, BOARD_LAYOUT, BOARD_LENGTH)
 
+# region Chess piece loading
 # Load the images
 # Current sizes 32x32
+# TODO: Filepath slashes for linux x windows gex
 white_pawn_image = tkinter.PhotoImage(file=r"assets\white_pawn.png")
 white_bishop_image = tkinter.PhotoImage(file=r"assets\white_bishop.png")
 white_knight_image = tkinter.PhotoImage(file=r"assets\white_knight.png")
@@ -154,6 +155,7 @@ for piece, (image, positions) in white_piece_postions.items():
                 True,
             )
         )
+# endregion
 
 
 window.mainloop()
