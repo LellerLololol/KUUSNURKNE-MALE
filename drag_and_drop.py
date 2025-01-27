@@ -6,11 +6,11 @@ import chess_piece_movement as cpm
 class Example(tkinter.Frame):
     """Illustrate how to drag items on a Tkinter canvas"""
 
-    def __init__(self, parent, cnvas, layout, bsize):
+    def __init__(self, parent, canvas, layout, board_size):
         tkinter.Frame.__init__(self, parent)
 
         # create a canvas
-        self.canvas = cnvas
+        self.canvas = canvas
         self.canvas.pack(fill="both", expand=True)
 
         # this data is used to keep track of an
@@ -25,14 +25,14 @@ class Example(tkinter.Frame):
         }
 
         self.layout = layout
-        self.bsize = bsize
+        self.board_size = board_size
 
         # List for the chess pieces (chess pices are loaded in draw_board.py)
         self.chess_pieces = []
         self.obj_to_id = {}
 
         # Load the image
-        self.move_image = tkinter.PhotoImage(file=r"select.png")
+        self.move_image = tkinter.PhotoImage(file=r"assets/select.png")
 
         # add bindings for clicking, dragging and releasing over
         # any object with the "token" tag
@@ -92,14 +92,17 @@ class Example(tkinter.Frame):
             self.layout, hexagons.Point(self._drag_data["x"], self._drag_data["y"])
         )
         cur_coords = self.canvas.coords(self._drag_data["item"])
-        inbounds = all(map(lambda x: -self.bsize <= x <= self.bsize, current_hex))
+        inbounds = all(
+            map(lambda x: -self.board_size <= x <= self.board_size, current_hex)
+        )
 
         # Lock the object on a hexagon
         if (
             inbounds
             and self.canvas.type(self._drag_data["item"]) != "polygon"
             and current_hex in self._drag_data["moves"]
-        ):  # eval(f'cur_object.{cur_type}_move()'):
+        ):
+            # eval(f'cur_object.{cur_type}_move()'):
             # object is in boundaries: lock it in the middle of hex
             # object also does a legal move
             # object itself is also not a hex
@@ -113,9 +116,6 @@ class Example(tkinter.Frame):
             self._drag_data["object"].first_move = False
 
             # chech if you can KILL
-            yrururururururururururururururururururururururururururururururururururururururururururururururururuurururururururururururururururururururururururururururururururururururururururururuururururururuururururururuurururururururururuurururururuurururururururururururururururururuururururruururururururururururuurururururururururururururururururururuurururururururuurururururuururururuurururuurururururuururururururururuurururururururuurururururuurururururururururururuurururururururuururururururururururururururuururururururuururururururuurururururuururururururuururururururuurururururururururuururururururururuurururururuururuurururururuururururururururururuururururururururururururuuurururururururururururuururururururururururururuurururururururuururururururuururururuururururururururururururururururururuurururururururuurururururururururururuurururururururururuururururururuururururururururuurururururuurururuururururuuurururururuururururuuururururururururuururururururuurururuururururururuurururururururuurururururururuururururururuurururuururururuurururururur = (
-                "idk"
-            )
             takeable = [i for i in cpm.Chessp.chess_pieces if i.position == current_hex]
             if takeable != []:
                 self.canvas.move(takeable[0].object, -1000, -1000)

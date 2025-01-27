@@ -4,10 +4,10 @@ import itertools
 
 class Chessp:
 
-    white_pawn_move = Hex(0, -1, 1)
-    white_pawn_take = [Hex(1, -1, 0), Hex(-1, 0, 1)]
-    black_pawn_move = Hex(0, 1, -1)
-    black_pawn_take = [Hex(-1, 1, 0), Hex(1, 0, -1)]
+    white_pawn_move = Hex(0, 1, -1)
+    white_pawn_take = [Hex(-1, 1, 0), Hex(1, 0, -1)]
+    black_pawn_move = Hex(0, -1, 1)
+    black_pawn_take = [Hex(1, -1, 0), Hex(-1, 0, 1)]
     rook_moves = [
         Hex(1, -1, 0),
         Hex(-1, 1, 0),
