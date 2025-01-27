@@ -41,14 +41,14 @@ class Chessp:
 
     chess_pieces = []
 
-    def __init__(self, type, color, object, pos, first_move):
+    def __init__(self, type, color, object, pos, first_move, id):
 
         self.type = type
         self.color = color
         self.object = object
         self.position = pos  # In Hex
         self.first_move = first_move
-        Chessp.chess_pieces.append(self)
+        self.token = id
 
     def deinit(self):
         self.chess_pieces.remove(self)

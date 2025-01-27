@@ -130,31 +130,37 @@ white_piece_postions["q"] = (white_queen_image, [Hex(1, -5, 4)])
 white_piece_postions["k"] = (white_king_image, [Hex(-1, -4, 5)])
 
 for piece, (image, positions) in black_piece_postions.items():
-    for position in positions:
-        something.chess_pieces.append(
+    for i, position in enumerate(positions):
+        token = f"{piece}{i}"  # id to use as a token
+        cpm.Chessp.chess_pieces.append(
             cpm.Chessp(
                 piece,
                 "black",
                 something.create_image_token(
-                    (hex_to_pixel(BOARD_LAYOUT, position)), image
+                    (hex_to_pixel(BOARD_LAYOUT, position)), image, token
                 ),
                 position,
                 True,
+                token,
             )
         )
 for piece, (image, positions) in white_piece_postions.items():
-    for position in positions:
-        something.chess_pieces.append(
+    for i, position in enumerate(positions):
+        token = f"{piece}{i}"  # id to use as a token
+        cpm.Chessp.chess_pieces.append(
             cpm.Chessp(
                 piece,
                 "white",
                 something.create_image_token(
-                    (hex_to_pixel(BOARD_LAYOUT, position)), image
+                    (hex_to_pixel(BOARD_LAYOUT, position)), image, token
                 ),
                 position,
                 True,
+                token,
             )
         )
+
+something.chess_pieces = cpm.Chessp.chess_pieces
 # endregion
 
 

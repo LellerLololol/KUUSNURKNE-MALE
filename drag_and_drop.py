@@ -6,7 +6,9 @@ import chess_piece_movement as cpm
 class Example(tkinter.Frame):
     """Illustrate how to drag items on a Tkinter canvas"""
 
-    def __init__(self, parent, canvas: tkinter.Canvas, layout: hexagons.Layout, board_size: int):
+    def __init__(
+        self, parent, canvas: tkinter.Canvas, layout: hexagons.Layout, board_size: int
+    ):
         tkinter.Frame.__init__(self, parent)
 
         # create a canvas
@@ -36,13 +38,15 @@ class Example(tkinter.Frame):
 
         # add bindings for clicking, dragging and releasing over
         # any object with the "token" tag
-        self.canvas.tag_bind("token", "<ButtonPress-1>", self.drag_start)
-        self.canvas.tag_bind("token", "<ButtonRelease-1>", self.drag_stop)
-        self.canvas.tag_bind("token", "<B1-Motion>", self.drag)
+        self.canvas.tag_bind("piece", "<ButtonPress-1>", self.drag_start)
+        self.canvas.tag_bind("piece", "<ButtonRelease-1>", self.drag_stop)
+        self.canvas.tag_bind("piece", "<B1-Motion>", self.drag)
 
-    def create_image_token(self, xy, image):
+    def create_image_token(
+        self, xy: hexagons.Hex, image: tkinter.PhotoImage, token: str
+    ):
         """Create a token at the given coordinate with the given image"""
-        self.canvas.create_image(xy[0], xy[1], image=image, tags=("token"))
+        self.canvas.create_image(xy[0], xy[1], image=image, tags=("piece", token))
 
     def create_temp_image(self, xy, image):
         """Create an image with a "remove" token"""
@@ -100,17 +104,19 @@ class Example(tkinter.Frame):
                 lock_coords[0] - cur_coords[0],
                 lock_coords[1] - cur_coords[1],
             )
-            self._drag_data["object"].position = current_hex
-            self._drag_data["object"].first_move = False
-
             # chech if you can KILL
-            takeable = [i for i in cpm.Chessp.chess_pieces if i.position == current_hex]
+            takeable = [i for i in self.chess_pieces if i.position == current_hex]
             if takeable != []:
-                self.canvas.move(takeable[0].object, -1000, -1000)
+                self.canvas.delete(takeable[0].token)
+                self.chess_pieces.remove(takeable[0])
                 # cpos = hexagons.hex_to_pixel(self.layout, takeable[0].position)
                 # self.canvas.move(self.canvas.find_closest(cpos[0], cpos[1])[0], -1000, -1000)
                 # self.canvas.move(self._drag_data['item'], 1000, 1000)
-                takeable[0].deinit()
+                # takeable[0].deinit()
+
+            self._drag_data["object"].position = current_hex
+            self._drag_data["object"].first_move = False
+
         else:
             # object is out of boundaries: move it back to the place it started
             self.canvas.move(
