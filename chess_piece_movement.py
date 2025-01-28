@@ -1,5 +1,4 @@
 from hexagons import *
-import itertools
 
 
 class Chessp:
@@ -65,7 +64,17 @@ class Chessp:
     def take_check(self, dire, i):
         return all(
             map(lambda x, y: -5 <= y + x * i <= 5, dire, self.position)
-        ) and self.get_hex(dire, i) in map(lambda x: x.position, Chessp.chess_pieces)
+        ) and self.get_hex(dire, i) in map(
+            lambda x: x.position if x.color is not self.color else None,
+            Chessp.chess_pieces,
+        )
+
+    def check_if_king(self, dire, i):
+        # Could be integrated into the check functions to waste less cycles
+        for x in Chessp.chess_piecesx.position:
+            if x.color is not self.color and x.type == "k":
+                return True
+        return False
 
     def get_hex(self, dire, i):
         """Get Hex dependinding on the direction, current position and direction multiplier"""
@@ -80,12 +89,21 @@ class Chessp:
             # Need to add a check to see whether the colors are different or not
             # Every object has a color to its name
             # sometimes idk
-            taken = [
-                i for i in self.chess_pieces if i.position == self.get_hex(dire, j)
-            ][0]
+            for piece in self.chess_pieces:
+                if piece.position == self.get_hex(dire, j):
+                    taken = piece
+                    break
             if taken.color != self.color:
                 v_spaces.append(self.get_hex(dire, j))
-        return v_spaces
+        return v_spaces, taken.type == "k"
+
+    def enemies_checking_king_post_move(self, dire, j) -> bool:
+        for piece in self.chess_pieces:
+            if piece.color != self.color and piece.type != "k":
+                _, king_check = eval(f"piece.{piece.type}_move()")
+                if king_check:
+                    return True
+        return False
 
     def p_move(self, type):
         """Gives all possible pawn moves (both white and black)"""
@@ -102,8 +120,9 @@ class Chessp:
 
         # Check if pawn can take a piece
         for pos in pawn_take:
-            valid_spaces = self.checked(valid_spaces, pos, 1)
-        return valid_spaces
+            valid_spaces, is_king = self.checked(valid_spaces, pos, 1)
+            king_check = True if not king_check and is_king else king_check
+        return valid_spaces, king_check
 
     def wp_move(self):
         """Gives all possible white pawn moves"""
@@ -124,8 +143,9 @@ class Chessp:
             while self.check(dire, i):
                 valid_spaces.append(self.get_hex(dire, i))
                 i += 1
-            valid_spaces = self.checked(valid_spaces, dire, i)
-        return valid_spaces
+            valid_spaces, is_king = self.checked(valid_spaces, dire, i)
+            king_check = True if not king_check and is_king else king_check
+        return valid_spaces, king_check
 
     def b_move(self):
         """Gives all possible bishop moves"""
@@ -136,8 +156,9 @@ class Chessp:
             while self.check(dire, i):
                 valid_spaces.append(self.get_hex(dire, i))
                 i += 1
-            valid_spaces = self.checked(valid_spaces, dire, i)
-        return valid_spaces
+            valid_spaces, is_king = self.checked(valid_spaces, dire, i)
+            king_check = True if not king_check and is_king else king_check
+        return valid_spaces, king_check
 
     def n_move(self):
         """Gives all possible horsey moves"""
@@ -146,8 +167,9 @@ class Chessp:
         for dire in Chessp.knight_moves:
             if self.check(dire, 1):
                 valid_spaces.append(self.get_hex(dire, 1))
-            valid_spaces = self.checked(valid_spaces, dire, 1)
-        return valid_spaces
+            valid_spaces, is_king = self.checked(valid_spaces, dire, 1)
+            king_check = True if not king_check and is_king else king_check
+        return valid_spaces, king_check
 
     def k_move(self):
         """Gives all possible king moves"""
@@ -156,17 +178,20 @@ class Chessp:
         for dire in Chessp.rook_moves:
             if self.check(dire, 1):
                 valid_spaces.append(self.get_hex(dire, 1))
-            valid_spaces = self.checked(valid_spaces, dire, 1)
+            valid_spaces, is_king = self.checked(valid_spaces, dire, 1)
         for dire in Chessp.bishop_moves:
             if self.check(dire, 1):
                 valid_spaces.append(self.get_hex(dire, 1))
-            valid_spaces = self.checked(valid_spaces, dire, 1)
-        return valid_spaces
+            valid_spaces, is_king = self.checked(valid_spaces, dire, 1)
+            king_check = True if not king_check and is_king else king_check
+        return valid_spaces, king_check
 
     def q_move(self):
         """Gives all possible queen moves"""
 
-        valid_spaces = self.r_move()
-        for i in self.b_move():
+        valid_spaces, king_check = self.r_move()
+        b_moves, king_check2 = self.b_move()
+        king_check = king_check or king_check2
+        for i in b_moves:
             valid_spaces.append(i)
-        return valid_spaces
+        return valid_spaces, king_check

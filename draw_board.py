@@ -131,7 +131,7 @@ white_piece_postions["k"] = (white_king_image, [Hex(-1, -4, 5)])
 
 for piece, (image, positions) in black_piece_postions.items():
     for i, position in enumerate(positions):
-        token = f"{piece}{i}"  # id to use as a token
+        token = f"b{piece}{i}"  # id to use as a token
         cpm.Chessp.chess_pieces.append(
             cpm.Chessp(
                 piece,
@@ -146,7 +146,7 @@ for piece, (image, positions) in black_piece_postions.items():
         )
 for piece, (image, positions) in white_piece_postions.items():
     for i, position in enumerate(positions):
-        token = f"{piece}{i}"  # id to use as a token
+        token = f"w{piece}{i}"  # id to use as a token
         cpm.Chessp.chess_pieces.append(
             cpm.Chessp(
                 piece,

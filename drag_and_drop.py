@@ -72,7 +72,7 @@ class Example(tkinter.Frame):
         )
         for obj in self.chess_pieces:
             if start_coords == obj.position and self.color_to_move == obj.color:
-                self._drag_data["moves"] = eval(f"obj.{obj.type}_move()")
+                self._drag_data["moves"], _ = eval(f"obj.{obj.type}_move()")
                 self._drag_data["object"] = obj
                 for move in self._drag_data[
                     "moves"
@@ -133,6 +133,8 @@ class Example(tkinter.Frame):
 
         # Remove all move indicators
         self.canvas.delete("remove")
+
+        # TODO: Add check for checkmate and stalemate here
 
         # reset the drag information
         self._drag_data["item"] = None
