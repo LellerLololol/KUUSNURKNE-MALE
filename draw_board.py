@@ -92,14 +92,14 @@ black_piece_postions["bp"] = (
         Hex(-4, 5, -1),
     ],
 )
-black_piece_postions["b"] = (
+black_piece_postions["bb"] = (
     black_bishop_image,
     [Hex(0, 3, -3), Hex(0, 4, -4), Hex(0, 5, -5)],
 )
-black_piece_postions["n"] = (black_knight_image, [Hex(-2, 5, -3), Hex(2, 3, -5)])
-black_piece_postions["r"] = (black_rook_image, [Hex(-3, 5, -2), Hex(3, 2, -5)])
-black_piece_postions["q"] = (black_queen_image, [Hex(-1, 5, -4)])
-black_piece_postions["k"] = (black_king_image, [Hex(1, 4, -5)])
+black_piece_postions["bn"] = (black_knight_image, [Hex(-2, 5, -3), Hex(2, 3, -5)])
+black_piece_postions["br"] = (black_rook_image, [Hex(-3, 5, -2), Hex(3, 2, -5)])
+black_piece_postions["bq"] = (black_queen_image, [Hex(-1, 5, -4)])
+black_piece_postions["bk"] = (black_king_image, [Hex(1, 4, -5)])
 
 
 # Create dict of white piece positions and their images.
@@ -120,14 +120,14 @@ white_piece_postions["wp"] = (
         Hex(4, -5, 1),
     ],
 )
-white_piece_postions["b"] = (
+white_piece_postions["wb"] = (
     white_bishop_image,
     [Hex(0, -3, 3), Hex(0, -4, 4), Hex(0, -5, 5)],
 )
-white_piece_postions["n"] = (white_knight_image, [Hex(2, -5, 3), Hex(-2, -3, 5)])
-white_piece_postions["r"] = (white_rook_image, [Hex(3, -5, 2), Hex(-3, -2, 5)])
-white_piece_postions["q"] = (white_queen_image, [Hex(1, -5, 4)])
-white_piece_postions["k"] = (white_king_image, [Hex(-1, -4, 5)])
+white_piece_postions["wn"] = (white_knight_image, [Hex(2, -5, 3), Hex(-2, -3, 5)])
+white_piece_postions["wr"] = (white_rook_image, [Hex(3, -5, 2), Hex(-3, -2, 5)])
+white_piece_postions["wq"] = (white_queen_image, [Hex(1, -5, 4)])
+white_piece_postions["wk"] = (white_king_image, [Hex(-1, -4, 5)])
 
 for piece, (image, positions) in black_piece_postions.items():
     for i, position in enumerate(positions):

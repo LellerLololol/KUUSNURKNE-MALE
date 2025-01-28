@@ -1,6 +1,4 @@
 from hexagons import *
-import itertools
-
 
 class Chessp:
 

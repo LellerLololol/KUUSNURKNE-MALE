@@ -28,6 +28,7 @@ class Example(tkinter.Frame):
 
         self.layout: hexagons.Layout = layout
         self.board_size: int = board_size
+        self.checked: bool = False
 
         # List for the chess pieces (chess pices are loaded in draw_board.py)
         self.chess_pieces: list[cpm.Chessp] = []
@@ -55,6 +56,30 @@ class Example(tkinter.Frame):
         """Create an image with a "remove" token"""
         self.canvas.create_image(xy[0], xy[1], image=image, tags=("remove"))
 
+    def move_object(self, cur_coords, current_hex):
+        """Move object to a given position"""
+        
+        # Counterintuitively, current_hex means end position
+        lock_coords = hexagons.hex_to_pixel(self.layout, current_hex)
+        self.canvas.move(
+            self._drag_data["item"],
+            lock_coords[0] - cur_coords[0],
+            lock_coords[1] - cur_coords[1],
+        )
+
+    def flip_board(self):
+        """Flip all chess piece positions"""
+
+        for pc in cpm.Chessp.chess_pieces:
+            pc_coords = pc.position
+            flipped_coords = list(map(lambda x: -x, pc_coords))
+            hex_flipped = hexagons.Hex(flipped_coords[0], flipped_coords[1], flipped_coords[2])
+            self.move_object(
+                hexagons.hex_to_pixel(self.layout, pc.position), 
+                hex_flipped
+            )
+            pc.position = hex_flipped
+
     def drag_start(self, event):
         """Begin drag of an object"""
         # record the item and its location
@@ -72,11 +97,17 @@ class Example(tkinter.Frame):
         )
         for obj in self.chess_pieces:
             if start_coords == obj.position and self.color_to_move == obj.color:
-                self._drag_data["moves"] = eval(f"obj.{obj.type}_move()")
+
+                # If object isn't a pawn, function name only last letter
+                if str(obj.type)[1] != 'p':
+                    look_for = str(obj.type)[1]
+                else:
+                    look_for = obj.type
+
+                self._drag_data["moves"] = eval(f"obj.{look_for}_move()")
                 self._drag_data["object"] = obj
-                for move in self._drag_data[
-                    "moves"
-                ]:  # Draws all possible spaces for a move
+                for move in self._drag_data["moves"]:
+                    # Draws all possible spaces for a move
                     self.create_temp_image(
                         hexagons.hex_to_pixel(self.layout, move), self.move_image
                     )
@@ -102,12 +133,8 @@ class Example(tkinter.Frame):
             # object is in boundaries: lock it in the middle of hex
             # object also does a legal move
             # object itself is also not a hex
-            lock_coords = hexagons.hex_to_pixel(self.layout, current_hex)
-            self.canvas.move(
-                self._drag_data["item"],
-                lock_coords[0] - cur_coords[0],
-                lock_coords[1] - cur_coords[1],
-            )
+            self.move_object(cur_coords, current_hex)
+
             # chech if you can KILL
             takeable = [i for i in self.chess_pieces if i.position == current_hex]
             if takeable != []:
@@ -118,10 +145,21 @@ class Example(tkinter.Frame):
                 # self.canvas.move(self._drag_data['item'], 1000, 1000)
                 # takeable[0].deinit()
 
-            # Cycle the color to move
-            self.color_to_move = "black" if self.color_to_move == "white" else "white"
             self._drag_data["object"].position = current_hex
             self._drag_data["object"].first_move = False
+            # Check all moves and see if any of them attacks the king
+            for pc in self.chess_pieces:
+                if (pc.type)[1] == 'k':
+                    king_piece = pc
+                    break
+            for pc in self.chess_pieces:
+                typo = pc.type[1] if pc.type[1] != 'p' else pc.type
+                if king_piece.position in eval(f'cpm.Chessp.{typo}_move(pc)') and pc.color != king_piece.color:
+                    self.checked = True
+                    print('checked')
+
+            # Cycle the color to move
+            self.color_to_move = "black" if self.color_to_move == "white" else "white"
 
         else:
             # object is out of boundaries: move it back to the place it started
