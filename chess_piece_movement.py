@@ -4,10 +4,10 @@ import itertools
 
 class Chessp:
 
-    white_pawn_move = Hex(0, -1, 1)
-    white_pawn_take = [Hex(1, -1, 0), Hex(-1, 0, 1)]
-    black_pawn_move = Hex(0, 1, -1)
-    black_pawn_take = [Hex(-1, 1, 0), Hex(1, 0, -1)]
+    white_pawn_move = Hex(0, 1, -1)
+    white_pawn_take = [Hex(-1, 1, 0), Hex(1, 0, -1)]
+    black_pawn_move = Hex(0, -1, 1)
+    black_pawn_take = [Hex(1, -1, 0), Hex(-1, 0, 1)]
     rook_moves = [
         Hex(1, -1, 0),
         Hex(-1, 1, 0),
@@ -41,14 +41,14 @@ class Chessp:
 
     chess_pieces = []
 
-    def __init__(self, type, color, object, pos, hm):
+    def __init__(self, type, color, object, pos, first_move, id):
 
         self.type = type
         self.color = color
         self.object = object
         self.position = pos  # In Hex
-        self.first_move = hm
-        Chessp.chess_pieces.append(self)
+        self.first_move = first_move
+        self.token = id
 
     def deinit(self):
         self.chess_pieces.remove(self)

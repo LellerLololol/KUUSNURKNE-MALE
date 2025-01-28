@@ -5,7 +5,7 @@ import drag_and_drop
 import chess_piece_movement as cpm
 
 # layout_flat/layout_pointy; size; origin point
-BOARD_LAYOUT = Layout(layout_flat, Point(45, 45), Point(500, 450))
+BOARD_LAYOUT = Layout(layout_flat, Point(30, 30), Point(300, 320))
 BOARD_LENGTH = 5
 
 # Shades for board (later on change to actually appealing static colors)
@@ -49,11 +49,19 @@ for q in range(-BOARD_LENGTH, BOARD_LENGTH + 1):
 window = tkinter.Tk()
 
 # Tkinter canvas
-canvas = tkinter.Canvas(window, width=1000, height=900, bg="light gray")
+canvas = tkinter.Canvas(window, width=600, height=640, bg="light gray")
 canvas.pack()
 
+
+# Draw the chess board
+for hex in hex_corners:
+    canvas.create_polygon(hex[0], fill=hex[1])
+something = drag_and_drop.Example(window, canvas, BOARD_LAYOUT, BOARD_LENGTH)
+
+# region Chess piece loading
 # Load the images
-# Current sizes 60x60
+# Current sizes 32x32
+# TODO: Filepath slashes for linux x windows gex
 white_pawn_image = tkinter.PhotoImage(file=r"assets\white_pawn.png")
 white_bishop_image = tkinter.PhotoImage(file=r"assets\white_bishop.png")
 white_knight_image = tkinter.PhotoImage(file=r"assets\white_knight.png")
@@ -67,133 +75,93 @@ black_rook_image = tkinter.PhotoImage(file=r"assets\black_rook.png")
 black_queen_image = tkinter.PhotoImage(file=r"assets\black_queen.png")
 black_king_image = tkinter.PhotoImage(file=r"assets\black_king.png")
 
+# Create dict of black piece positions and their images.
+black_piece_postions: dict[str, (tkinter.PhotoImage, list[Hex])] = {}
 
-# Draw the chess board
-for hex in hex_corners:
-    canvas.create_polygon(hex[0], fill=hex[1])
-something = drag_and_drop.Example(window, canvas, BOARD_LAYOUT, BOARD_LENGTH)
+black_piece_postions["bp"] = (
+    black_pawn_image,
+    [
+        Hex(0, 1, -1),
+        Hex(1, 1, -2),
+        Hex(2, 1, -3),
+        Hex(3, 1, -4),
+        Hex(4, 1, -5),
+        Hex(-1, 2, -1),
+        Hex(-2, 3, -1),
+        Hex(-3, 4, -1),
+        Hex(-4, 5, -1),
+    ],
+)
+black_piece_postions["b"] = (
+    black_bishop_image,
+    [Hex(0, 3, -3), Hex(0, 4, -4), Hex(0, 5, -5)],
+)
+black_piece_postions["n"] = (black_knight_image, [Hex(-2, 5, -3), Hex(2, 3, -5)])
+black_piece_postions["r"] = (black_rook_image, [Hex(-3, 5, -2), Hex(3, 2, -5)])
+black_piece_postions["q"] = (black_queen_image, [Hex(-1, 5, -4)])
+black_piece_postions["k"] = (black_king_image, [Hex(1, 4, -5)])
 
-# Load the chess pieces (this code will be optimized after all chess pieces will be loaded in the correct positions)
-white_pawn = cpm.Chessp(
-    "wp",
-    "white",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(0, 0, 0))), white_pawn_image
-    ),
-    Hex(0, 0, 0),
-    True,
-)
-white_bishop = cpm.Chessp(
-    "b",
-    "white",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(1, 0, -1))), white_bishop_image
-    ),
-    Hex(1, 0, -1),
-    True,
-)
-white_knight = cpm.Chessp(
-    "n",
-    "white",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(2, -1, -1))), white_knight_image
-    ),
-    Hex(2, -1, -1),
-    True,
-)
-white_rook = cpm.Chessp(
-    "r",
-    "white",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(-1, 1, 0))), white_rook_image
-    ),
-    Hex(-1, 1, 0),
-    True,
-)
-white_queen = cpm.Chessp(
-    "q",
-    "white",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(-2, 1, 1))), white_queen_image
-    ),
-    Hex(-2, 1, 1),
-    True,
-)
-white_king = cpm.Chessp(
-    "k",
-    "white",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(0, 3, -3))), white_king_image
-    ),
-    Hex(0, 3, -3),
-    True,
-)
-black_pawn = cpm.Chessp(
-    "bp",
-    "black",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(0, -5, 5))), black_pawn_image
-    ),
-    Hex(0, -5, 5),
-    True,
-)
-black_bishop = cpm.Chessp(
-    "b",
-    "black",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(0, 5, -5))), black_bishop_image
-    ),
-    Hex(0, 5, -5),
-    True,
-)
-black_knight = cpm.Chessp(
-    "n",
-    "black",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(5, -5, 0))), black_knight_image
-    ),
-    Hex(5, -5, 0),
-    True,
-)
-black_rook = cpm.Chessp(
-    "r",
-    "black",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(-5, 5, 0))), black_rook_image
-    ),
-    Hex(-5, 5, 0),
-    True,
-)
-black_queen = cpm.Chessp(
-    "q",
-    "black",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(-5, 0, 5))), black_queen_image
-    ),
-    Hex(-5, 0, 5),
-    True,
-)
-black_king = cpm.Chessp(
-    "k",
-    "black",
-    something.create_image_token(
-        (hex_to_pixel(BOARD_LAYOUT, Hex(5, 0, -5))), black_king_image
-    ),
-    Hex(5, 0, -5),
-    True,
-)
 
-something.chess_pieces.append(white_pawn)
-something.chess_pieces.append(white_bishop)
-something.chess_pieces.append(white_knight)
-something.chess_pieces.append(white_rook)
-something.chess_pieces.append(white_queen)
-something.chess_pieces.append(white_king)
-something.chess_pieces.append(black_pawn)
-something.chess_pieces.append(black_bishop)
-something.chess_pieces.append(black_knight)
-something.chess_pieces.append(black_rook)
-something.chess_pieces.append(black_queen)
-something.chess_pieces.append(black_king)
+# Create dict of white piece positions and their images.
+# Possible to just do the same but with Hex r,s coords inverted but ehh DRY is overrated.
+white_piece_postions: dict[str, (tkinter.PhotoImage, list[Hex])] = {}
+
+white_piece_postions["wp"] = (
+    white_pawn_image,
+    [
+        Hex(0, -1, 1),
+        Hex(-1, -1, 2),
+        Hex(-2, -1, 3),
+        Hex(-3, -1, 4),
+        Hex(-4, -1, 5),
+        Hex(1, -2, 1),
+        Hex(2, -3, 1),
+        Hex(3, -4, 1),
+        Hex(4, -5, 1),
+    ],
+)
+white_piece_postions["b"] = (
+    white_bishop_image,
+    [Hex(0, -3, 3), Hex(0, -4, 4), Hex(0, -5, 5)],
+)
+white_piece_postions["n"] = (white_knight_image, [Hex(2, -5, 3), Hex(-2, -3, 5)])
+white_piece_postions["r"] = (white_rook_image, [Hex(3, -5, 2), Hex(-3, -2, 5)])
+white_piece_postions["q"] = (white_queen_image, [Hex(1, -5, 4)])
+white_piece_postions["k"] = (white_king_image, [Hex(-1, -4, 5)])
+
+for piece, (image, positions) in black_piece_postions.items():
+    for i, position in enumerate(positions):
+        token = f"{piece}{i}"  # id to use as a token
+        cpm.Chessp.chess_pieces.append(
+            cpm.Chessp(
+                piece,
+                "black",
+                something.create_image_token(
+                    (hex_to_pixel(BOARD_LAYOUT, position)), image, token
+                ),
+                position,
+                True,
+                token,
+            )
+        )
+for piece, (image, positions) in white_piece_postions.items():
+    for i, position in enumerate(positions):
+        token = f"{piece}{i}"  # id to use as a token
+        cpm.Chessp.chess_pieces.append(
+            cpm.Chessp(
+                piece,
+                "white",
+                something.create_image_token(
+                    (hex_to_pixel(BOARD_LAYOUT, position)), image, token
+                ),
+                position,
+                True,
+                token,
+            )
+        )
+
+something.chess_pieces = cpm.Chessp.chess_pieces
+# endregion
+
 
 window.mainloop()
