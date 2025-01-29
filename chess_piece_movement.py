@@ -1,4 +1,5 @@
 from hexagons import *
+import time # to show if the program is active and in a loop or just crashed
 
 
 class Chessp:
@@ -55,13 +56,14 @@ class Chessp:
 
     def check(self, dire, i, chess_pieces: list = None, ignore_checkmate = False):
         # i told myself to make more readable code wth is this
+        print("using check", time.time())
         if chess_pieces is None:
             chess_pieces = self.chess_pieces
         return all(
             map(lambda x, y: -5 <= y + x * i <= 5, dire, self.position)
         ) and self.get_hex(dire, i) not in map(
             lambda x: x.position, chess_pieces
-        ), self._enemies_checking_post_move(dire, i) if not ignore_checkmate else False
+        ), not self._enemies_checking_post_move(dire, i) if not ignore_checkmate else True
 
     def take_check(self, dire, i):
         return all(
@@ -114,8 +116,8 @@ class Chessp:
                     self.first_move,
                     self.token,
                 ))
-                print("piece", alternate_chess_pieces[-1].position)
-                print("self", self.position)
+                # print("piece", alternate_chess_pieces[-1].position)
+                # print("self", self.position)
                 
             else:
                 alternate_chess_pieces.append(piece)
@@ -126,17 +128,21 @@ class Chessp:
                     return True
         return False
 
-    def p_move(self, type):
+    def p_move(self, type, chess_pieces: list):
         """Gives all possible pawn moves (both white and black)"""
+        ignore_checkmate = True
+        if chess_pieces is None:
+            chess_pieces = self.chess_pieces
+            ignore_checkmate = False
 
         valid_spaces = []
         pawn_move = eval(f"self.{type}_pawn_move")
         pawn_take = eval(f"self.{type}_pawn_take")
-        if self.check(pawn_move, 1):
+        if all(self.check(pawn_move, 1, chess_pieces, ignore_checkmate)):
             valid_spaces.append(self.get_hex(pawn_move, 1))
-            if self.first_move and self.check(
-                pawn_move, 2
-            ):  # First move - can move 2 spaces forward
+            if self.first_move and all(self.check(
+                pawn_move, 2, chess_pieces, ignore_checkmate
+            )):  # First move - can move 2 spaces forward
                 valid_spaces.append(self.get_hex(pawn_move, 2))
 
         # Check if pawn can take a piece
@@ -146,15 +152,15 @@ class Chessp:
             king_check = True if not king_check and is_king else king_check
         return valid_spaces, king_check
 
-    def wp_move(self):
+    def wp_move(self, chess_pieces: list = None):
         """Gives all possible white pawn moves"""
 
-        return self.p_move("white")
+        return self.p_move("white", chess_pieces)
 
-    def bp_move(self):
+    def bp_move(self, chess_pieces: list = None):
         """Gives all possible black pawn moves"""
 
-        return self.p_move("black")
+        return self.p_move("black", chess_pieces)
 
     def r_move(self, chess_pieces: list = None):
         """Gives all possible rook moves"""
@@ -166,66 +172,70 @@ class Chessp:
         king_check = False
         for dire in Chessp.rook_moves:
             i = 1
-            checking = self.check(dire, i, chess_pieces, ignore_checkmate)
-            while checking[0]:
-                if ignore_checkmate:
-                    valid_spaces.append(self.get_hex(dire, i))
-                elif not checking[1]:
-                    valid_spaces.append(self.get_hex(dire, i))
+            while all(self.check(dire, i, chess_pieces, ignore_checkmate)):
+                valid_spaces.append(self.get_hex(dire, i))
                 i += 1
-                checking = self.check(dire, i, chess_pieces, ignore_checkmate)
             valid_spaces, is_king = self.checked(valid_spaces, dire, i)
             king_check = True if not king_check and is_king else king_check
 
         return valid_spaces, king_check
 
-    def b_move(self):
+    def b_move(self, chess_pieces: list = None):
         """Gives all possible bishop moves"""
-
+        ignore_checkmate = True
+        if chess_pieces is None:
+            chess_pieces = self.chess_pieces
+            ignore_checkmate = False
         valid_spaces = []
         king_check = False
         for dire in Chessp.bishop_moves:
             i = 1
-            while self.check(dire, i):
+            while all(self.check(dire, i, chess_pieces, ignore_checkmate)):
                 valid_spaces.append(self.get_hex(dire, i))
                 i += 1
             valid_spaces, is_king = self.checked(valid_spaces, dire, i)
             king_check = True if not king_check and is_king else king_check
         return valid_spaces, king_check
 
-    def n_move(self):
+    def n_move(self, chess_pieces: list = None):
         """Gives all possible horsey moves"""
+        ignore_checkmate = True
+        if chess_pieces is None:
+            chess_pieces = self.chess_pieces
+            ignore_checkmate = False
 
         valid_spaces = []
         king_check = False
         for dire in Chessp.knight_moves:
-            if self.check(dire, 1):
+            if all(self.check(dire, 1, chess_pieces, ignore_checkmate)):
                 valid_spaces.append(self.get_hex(dire, 1))
             valid_spaces, is_king = self.checked(valid_spaces, dire, 1)
             king_check = True if not king_check and is_king else king_check
         return valid_spaces, king_check
 
-    def k_move(self):
+    def k_move(self, chess_pieces: list = None):
         """Gives all possible king moves"""
-
+        ignore_checkmate = True
+        if chess_pieces is None:
+            chess_pieces = self.chess_pieces
+            ignore_checkmate = False 
         valid_spaces = []
         king_check = False
         for dire in Chessp.rook_moves:
-            if self.check(dire, 1):
+            if all(self.check(dire, 1, chess_pieces, ignore_checkmate)):
                 valid_spaces.append(self.get_hex(dire, 1))
             valid_spaces, is_king = self.checked(valid_spaces, dire, 1)
         for dire in Chessp.bishop_moves:
-            if self.check(dire, 1):
+            if all(self.check(dire, 1, chess_pieces, ignore_checkmate)):
                 valid_spaces.append(self.get_hex(dire, 1))
             valid_spaces, is_king = self.checked(valid_spaces, dire, 1)
             king_check = True if not king_check and is_king else king_check
         return valid_spaces, king_check
 
-    def q_move(self):
+    def q_move(self, chess_pieces: list = None):
         """Gives all possible queen moves"""
-
-        valid_spaces, king_check = self.r_move()
-        b_moves, king_check2 = self.b_move()
+        valid_spaces, king_check = self.r_move(chess_pieces)
+        b_moves, king_check2 = self.b_move(chess_pieces)
         king_check = king_check or king_check2
         for i in b_moves:
             valid_spaces.append(i)
