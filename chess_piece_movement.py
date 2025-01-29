@@ -53,13 +53,15 @@ class Chessp:
         self.chess_pieces.remove(self)
         self.position = Hex(-10, 10, 0)
 
-    def check(self, dire, i):
+    def check(self, dire, i, chess_pieces: list = None, ignore_checkmate = False):
         # i told myself to make more readable code wth is this
+        if chess_pieces is None:
+            chess_pieces = self.chess_pieces
         return all(
             map(lambda x, y: -5 <= y + x * i <= 5, dire, self.position)
         ) and self.get_hex(dire, i) not in map(
-            lambda x: x.position, Chessp.chess_pieces
-        )
+            lambda x: x.position, chess_pieces
+        ), self._enemies_checking_post_move(dire, i) if not ignore_checkmate else False
 
     def take_check(self, dire, i):
         return all(
@@ -69,12 +71,13 @@ class Chessp:
             Chessp.chess_pieces,
         )
 
-    def check_if_king(self, dire, i):
-        # Could be integrated into the check functions to waste less cycles
-        for x in Chessp.chess_piecesx.position:
-            if x.color is not self.color and x.type == "k":
-                return True
-        return False
+    # forgot purpose of this function
+    # def check_if_king(self, dire, i):
+    #     # Could be integrated into the check functions to waste less cycles
+    #     for x in Chessp.chess_piecesx.position:
+    #         if x.color is not self.color and x.type == "k":
+    #             return True
+    #     return False
 
     def get_hex(self, dire, i):
         """Get Hex dependinding on the direction, current position and direction multiplier"""
@@ -101,21 +104,24 @@ class Chessp:
 
     def _enemies_checking_post_move(self, dire, j) -> bool:
         alternate_chess_pieces = []
-        for piece in alternate_chess_pieces:
+        for piece in self.chess_pieces:
             if piece == self:
-                piece = Chessp(
+                alternate_chess_pieces.append(Chessp(
                     self.type,
                     self.color,
                     self.object,
                     self.get_hex(dire, j),
                     self.first_move,
                     self.token,
-                )
+                ))
+                print("piece", alternate_chess_pieces[-1].position)
+                print("self", self.position)
+                
             else:
                 alternate_chess_pieces.append(piece)
-        for piece in self.chess_pieces:
+        for piece in alternate_chess_pieces:
             if piece.color != self.color and piece.type != "k":
-                _, king_check = eval(f"piece.{piece.type}_move()")
+                _, king_check = eval(f"piece.{piece.type}_move(alternate_chess_pieces)")
                 if king_check:
                     return True
         return False
@@ -150,16 +156,24 @@ class Chessp:
 
         return self.p_move("black")
 
-    def r_move(self):
+    def r_move(self, chess_pieces: list = None):
         """Gives all possible rook moves"""
-
+        ignore_checkmate = True
+        if chess_pieces is None:
+            chess_pieces = self.chess_pieces
+            ignore_checkmate = False
         valid_spaces = []
         king_check = False
         for dire in Chessp.rook_moves:
             i = 1
-            while self.check(dire, i):
-                valid_spaces.append(self.get_hex(dire, i))
+            checking = self.check(dire, i, chess_pieces, ignore_checkmate)
+            while checking[0]:
+                if ignore_checkmate:
+                    valid_spaces.append(self.get_hex(dire, i))
+                elif not checking[1]:
+                    valid_spaces.append(self.get_hex(dire, i))
                 i += 1
+                checking = self.check(dire, i, chess_pieces, ignore_checkmate)
             valid_spaces, is_king = self.checked(valid_spaces, dire, i)
             king_check = True if not king_check and is_king else king_check
 
