@@ -80,6 +80,7 @@ class Example(tkinter.Frame):
                     self.create_temp_image(
                         hexagons.hex_to_pixel(self.layout, move), self.move_image
                     )
+                break
 
     def drag_stop(self, event):
         """End drag of an object"""
@@ -118,8 +119,24 @@ class Example(tkinter.Frame):
                 # self.canvas.move(self._drag_data['item'], 1000, 1000)
                 # takeable[0].deinit()
 
+            # TODO: Add check for checkmate and stalemate here
+            # Not working
+            _, can_target_king = eval(
+                f'self._drag_data["object"].{self._drag_data["object"].type}_move()'
+            )
+            enemy_can_move = self.check_if_enemy_can_move()
+            if not enemy_can_move:
+                if can_target_king:
+                    print("Checkmate")
+                else:
+                    print("Stalemate")
+                self.chess_pieces = []
+                self.canvas.delete("pieces")
+
             # Cycle the color to move
             self.color_to_move = "black" if self.color_to_move == "white" else "white"
+
+            # Update moved chess piece data
             self._drag_data["object"].position = current_hex
             self._drag_data["object"].first_move = False
 
@@ -134,14 +151,25 @@ class Example(tkinter.Frame):
         # Remove all move indicators
         self.canvas.delete("remove")
 
-        # TODO: Add check for checkmate and stalemate here
-
         # reset the drag information
         self._drag_data["item"] = None
         self._drag_data["x"] = 0
         self._drag_data["y"] = 0
         self._drag_data["previous"] = [0, 0]
         self._drag_data["moves"] = []
+
+    def check_if_enemy_can_move(self) -> bool:
+        # Not working
+        can_move = False
+        for obj in self.chess_pieces:
+            if (
+                obj.color != self.color_to_move and not obj.type == "k"
+            ):  # TODO: Remove the king check
+                moves, _ = eval(f"obj.{obj.type}_move()")
+                if len(moves) != 0:
+                    can_move = True
+                    break
+        return can_move
 
     def drag(self, event):
         """Handle dragging of an object"""

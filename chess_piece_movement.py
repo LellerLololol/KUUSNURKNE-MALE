@@ -1,5 +1,5 @@
 from hexagons import *
-import time # to show if the program is active and in a loop or just crashed
+import time  # to show if the program is active and in a loop or just crashed
 
 
 class Chessp:
@@ -54,16 +54,18 @@ class Chessp:
         self.chess_pieces.remove(self)
         self.position = Hex(-10, 10, 0)
 
-    def check(self, dire, i, chess_pieces: list = None, ignore_checkmate = False):
+    def check(self, dire, i, chess_pieces: list = None, ignore_checkmate=False):
         # i told myself to make more readable code wth is this
         print("using check", time.time())
         if chess_pieces is None:
             chess_pieces = self.chess_pieces
         return all(
             map(lambda x, y: -5 <= y + x * i <= 5, dire, self.position)
-        ) and self.get_hex(dire, i) not in map(
-            lambda x: x.position, chess_pieces
-        ), not self._enemies_checking_post_move(dire, i) if not ignore_checkmate else True
+        ) and self.get_hex(dire, i) not in map(lambda x: x.position, chess_pieces), (
+            not self._enemies_checking_post_move(dire, i)
+            if not ignore_checkmate
+            else True
+        )
 
     def take_check(self, dire, i):
         return all(
@@ -105,20 +107,23 @@ class Chessp:
         return v_spaces, False
 
     def _enemies_checking_post_move(self, dire, j) -> bool:
+        # TODO: Add a check for situations where piece is taken away to prevent check cause i'm not sure if it exists
         alternate_chess_pieces = []
         for piece in self.chess_pieces:
             if piece == self:
-                alternate_chess_pieces.append(Chessp(
-                    self.type,
-                    self.color,
-                    self.object,
-                    self.get_hex(dire, j),
-                    self.first_move,
-                    self.token,
-                ))
+                alternate_chess_pieces.append(
+                    Chessp(
+                        self.type,
+                        self.color,
+                        self.object,
+                        self.get_hex(dire, j),
+                        self.first_move,
+                        self.token,
+                    )
+                )
                 # print("piece", alternate_chess_pieces[-1].position)
                 # print("self", self.position)
-                
+
             else:
                 alternate_chess_pieces.append(piece)
         for piece in alternate_chess_pieces:
@@ -140,9 +145,9 @@ class Chessp:
         pawn_take = eval(f"self.{type}_pawn_take")
         if all(self.check(pawn_move, 1, chess_pieces, ignore_checkmate)):
             valid_spaces.append(self.get_hex(pawn_move, 1))
-            if self.first_move and all(self.check(
-                pawn_move, 2, chess_pieces, ignore_checkmate
-            )):  # First move - can move 2 spaces forward
+            if self.first_move and all(
+                self.check(pawn_move, 2, chess_pieces, ignore_checkmate)
+            ):  # First move - can move 2 spaces forward
                 valid_spaces.append(self.get_hex(pawn_move, 2))
 
         # Check if pawn can take a piece
@@ -218,7 +223,7 @@ class Chessp:
         ignore_checkmate = True
         if chess_pieces is None:
             chess_pieces = self.chess_pieces
-            ignore_checkmate = False 
+            ignore_checkmate = False
         valid_spaces = []
         king_check = False
         for dire in Chessp.rook_moves:
