@@ -3,7 +3,7 @@ import hexagons
 import chess_piece_movement as cpm
 
 
-class Example(tkinter.Frame):
+class ChessBoardInteractions(tkinter.Frame):
     """Illustrate how to drag items on a Tkinter canvas"""
 
     def __init__(

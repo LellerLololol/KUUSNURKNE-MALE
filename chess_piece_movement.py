@@ -4,10 +4,14 @@ import time  # to show if the program is active and in a loop or just crashed
 
 class Chessp:
 
-    white_pawn_move = Hex(0, 1, -1)
-    white_pawn_take = [Hex(-1, 1, 0), Hex(1, 0, -1)]
-    black_pawn_move = Hex(0, -1, 1)
-    black_pawn_take = [Hex(1, -1, 0), Hex(-1, 0, 1)]
+    top_pawn_move = Hex(0, 1, -1)
+    top_pawn_take = [Hex(-1, 1, 0), Hex(1, 0, -1)]
+    bottom_pawn_move = Hex(0, -1, 1)
+    bottom_pawn_take = [Hex(1, -1, 0), Hex(-1, 0, 1)]
+    white_pawn_move  = None
+    white_pawn_take = None
+    black_pawn_move = None
+    black_pawn_take = None
     rook_moves = [
         Hex(1, -1, 0),
         Hex(-1, 1, 0),
@@ -45,7 +49,7 @@ class Chessp:
 
         self.type = type
         self.color = color
-        self.object: Any = object
+        self.object = object
         self.position = pos  # In Hex
         self.first_move = first_move
         self.token = id
