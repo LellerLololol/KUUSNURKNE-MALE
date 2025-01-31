@@ -56,7 +56,7 @@ canvas.pack()
 # Draw the chess board
 for hex in hex_corners:
     canvas.create_polygon(hex[0], fill=hex[1])
-something = drag_and_drop.Example(window, canvas, BOARD_LAYOUT, BOARD_LENGTH)
+something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH)
 
 # region Chess piece loading
 # Load the images
@@ -86,7 +86,7 @@ black_piece_sprites: dict[str, tkinter.PhotoImage] = {
     "k": black_king_image,
 }
 
-bottom_piece_postions["bp"] = [
+bottom_piece_postions["wp"] = [
     Hex(0, 1, -1),
     Hex(1, 1, -2),
     Hex(2, 1, -3),
@@ -125,7 +125,7 @@ white_piece_sprites: dict[str, tkinter.PhotoImage] = {
 # top_piece_postions["n"] = []
 # top_piece_postions["r"] = []
 # top_piece_postions["q"] = []
-top_piece_postions["wp"] = [
+top_piece_postions["bp"] = [
     Hex(0, -1, 1),
     Hex(-1, -1, 2),
     Hex(-2, -1, 3),
@@ -147,13 +147,13 @@ top_piece_postions["q"] = [Hex(1, -5, 4)]
 top_piece_postions["k"] = [Hex(-1, -4, 5)]
 
 for piece, positions in bottom_piece_postions.items():
-    image = black_piece_sprites[piece]
+    image = white_piece_sprites[piece]
     for i, position in enumerate(positions):
-        token = f"b{piece}{i}"  # id to use as a token
+        token = f"w{piece}{i}"  # id to use as a token
         cpm.Chessp.chess_pieces.append(
             cpm.Chessp(
                 piece,
-                "black",
+                "white",
                 something.create_image_token(
                     (hex_to_pixel(BOARD_LAYOUT, position)), image, token
                 ),
@@ -163,13 +163,13 @@ for piece, positions in bottom_piece_postions.items():
             )
         )
 for piece, positions in top_piece_postions.items():
-    image = white_piece_sprites[piece]
+    image = black_piece_sprites[piece]
     for i, position in enumerate(positions):
-        token = f"w{piece}{i}"  # id to use as a token
+        token = f"b{piece}{i}"  # id to use as a token
         cpm.Chessp.chess_pieces.append(
             cpm.Chessp(
                 piece,
-                "white",
+                "black",
                 something.create_image_token(
                     (hex_to_pixel(BOARD_LAYOUT, position)), image, token
                 ),

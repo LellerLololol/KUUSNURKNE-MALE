@@ -4,10 +4,10 @@ import time  # to show if the program is active and in a loop or just crashed
 
 class Chessp:
 
-    white_pawn_move = Hex(0, 1, -1)
-    white_pawn_take = [Hex(-1, 1, 0), Hex(1, 0, -1)]
-    black_pawn_move = Hex(0, -1, 1)
-    black_pawn_take = [Hex(1, -1, 0), Hex(-1, 0, 1)]
+    black_pawn_move = Hex(0, 1, -1)
+    black_pawn_take = [Hex(-1, 1, 0), Hex(1, 0, -1)]
+    white_pawn_move = Hex(0, -1, 1)
+    white_pawn_take = [Hex(1, -1, 0), Hex(-1, 0, 1)]
     rook_moves = [
         Hex(1, -1, 0),
         Hex(-1, 1, 0),
@@ -45,7 +45,7 @@ class Chessp:
 
         self.type = type
         self.color = color
-        self.object: Any = object
+        self.object = object
         self.position = pos  # In Hex
         self.first_move = first_move
         self.token = id
@@ -140,9 +140,9 @@ class Chessp:
                     return True
         return False
 
-    def check_if_2_pieces_overlapping(self) -> bool:
+    def check_if_2_pieces_overlapping(self, chess_pieces) -> bool:
         i = 0
-        for piece in self.chess_pieces:
+        for piece in chess_pieces:
             if piece.position == self.position:
                 i += 1
         if i != 1:
@@ -154,7 +154,7 @@ class Chessp:
         """Filters out moves that would put the king in check"""
         if ignore_checkmate:
             return
-        print("filtering", len(valid_spaces))
+        # print("filtering", len(valid_spaces))
         spaces = valid_spaces.copy()
         for space in spaces:
             if self._enemies_checking_post_move(space):
@@ -168,7 +168,7 @@ class Chessp:
             ignore_checkmate = False
 
         if (
-            self.check_if_2_pieces_overlapping()
+            self.check_if_2_pieces_overlapping(chess_pieces)
         ):  # fuck you thats why (short circuiting debugging reasons)
             return [], False
 
@@ -209,7 +209,7 @@ class Chessp:
             chess_pieces = self.chess_pieces
             ignore_checkmate = False
 
-        if self.check_if_2_pieces_overlapping():
+        if self.check_if_2_pieces_overlapping(chess_pieces):
             return [], False
 
         valid_spaces = []
@@ -233,7 +233,7 @@ class Chessp:
             chess_pieces = self.chess_pieces
             ignore_checkmate = False
 
-        if self.check_if_2_pieces_overlapping():
+        if self.check_if_2_pieces_overlapping(chess_pieces):
             return [], False
 
         valid_spaces = []
@@ -258,7 +258,7 @@ class Chessp:
             chess_pieces = self.chess_pieces
             ignore_checkmate = False
 
-        if self.check_if_2_pieces_overlapping():
+        if self.check_if_2_pieces_overlapping(chess_pieces):
             return [], False
 
         valid_spaces = []
@@ -280,7 +280,7 @@ class Chessp:
             chess_pieces = self.chess_pieces
             ignore_checkmate = False
 
-        if self.check_if_2_pieces_overlapping():
+        if self.check_if_2_pieces_overlapping(chess_pieces):
             return [], False
 
         valid_spaces = []
@@ -303,7 +303,7 @@ class Chessp:
 
     def q_move(self, chess_pieces: list = None):
         """Gives all possible queen moves"""
-        if self.check_if_2_pieces_overlapping():
+        if self.check_if_2_pieces_overlapping(chess_pieces):
             return [], False
 
         valid_spaces, king_check = self.r_move(chess_pieces)

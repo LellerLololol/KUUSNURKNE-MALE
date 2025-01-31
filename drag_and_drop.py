@@ -3,7 +3,7 @@ import hexagons
 import chess_piece_movement as cpm
 
 
-class Example(tkinter.Frame):
+class ChessBoardInteraction(tkinter.Frame):
     """Illustrate how to drag items on a Tkinter canvas"""
 
     def __init__(
@@ -37,7 +37,7 @@ class Example(tkinter.Frame):
         self.move_image = tkinter.PhotoImage(file=r"assets/select.png")
 
         # Define the first colour to move
-        self.color_to_move = "black"
+        self.color_to_move = "white"
 
         # add bindings for clicking, dragging and releasing over
         # any object with the "token" tag
@@ -124,9 +124,9 @@ class Example(tkinter.Frame):
             _, can_target_king = eval(
                 f'self._drag_data["object"].{self._drag_data["object"].type}_move()'
             )
-            print(can_target_king)
+            # print(can_target_king)
             enemy_can_move = self.check_if_enemy_can_move()
-            print(enemy_can_move)
+            # print(enemy_can_move)
             if not enemy_can_move:
                 if can_target_king:
                     print("Checkmate")
