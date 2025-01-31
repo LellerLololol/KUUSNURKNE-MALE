@@ -161,12 +161,10 @@ class Example(tkinter.Frame):
         self._drag_data["moves"] = []
 
     def check_if_enemy_can_move(self) -> bool:
-        # Not working
+        """Check if the enemy can move"""
         can_move = False
         for obj in self.chess_pieces:
-            if (
-                obj.color != self.color_to_move and not obj.type == "k"
-            ):  # TODO: Remove the king check
+            if obj.color != self.color_to_move:
                 moves, _ = eval(f"obj.{obj.type}_move()")
                 if len(moves) != 0:
                     can_move = True

@@ -77,7 +77,7 @@ black_king_image = tkinter.PhotoImage(file=r"assets\black_king.png")
 
 # Create dict of black piece positions and their images.
 bottom_piece_postions: dict[str, list[Hex]] = {}
-black_piece_sprites:dict[str,tkinter.PhotoImage] = {
+black_piece_sprites: dict[str, tkinter.PhotoImage] = {
     "bp": black_pawn_image,
     "b": black_bishop_image,
     "n": black_knight_image,
@@ -86,34 +86,32 @@ black_piece_sprites:dict[str,tkinter.PhotoImage] = {
     "k": black_king_image,
 }
 
-bottom_piece_postions["bp"] = (
-    black_pawn_image,
-    [
-        Hex(0, 1, -1),
-        Hex(1, 1, -2),
-        Hex(2, 1, -3),
-        Hex(3, 1, -4),
-        Hex(4, 1, -5),
-        Hex(-1, 2, -1),
-        Hex(-2, 3, -1),
-        Hex(-3, 4, -1),
-        Hex(-4, 5, -1),
-    ],
-)
-bottom_piece_postions["b"] = (
-    black_bishop_image,
-    [Hex(0, 3, -3), Hex(0, 4, -4), Hex(0, 5, -5)],
-)
-bottom_piece_postions["n"] = (black_knight_image, [Hex(-2, 5, -3), Hex(2, 3, -5)])
-bottom_piece_postions["r"] = (black_rook_image, [Hex(-3, 5, -2), Hex(3, 2, -5)])
-bottom_piece_postions["q"] = (black_queen_image, [Hex(-1, 5, -4)])
-bottom_piece_postions["k"] = (black_king_image, [Hex(1, 4, -5)])
+bottom_piece_postions["bp"] = [
+    Hex(0, 1, -1),
+    Hex(1, 1, -2),
+    Hex(2, 1, -3),
+    Hex(3, 1, -4),
+    Hex(4, 1, -5),
+    Hex(-1, 2, -1),
+    Hex(-2, 3, -1),
+    Hex(-3, 4, -1),
+    Hex(-4, 5, -1),
+]
+bottom_piece_postions["b"] = [
+    Hex(0, 3, -3),
+    Hex(0, 4, -4),
+    Hex(0, 5, -5),
+]
+bottom_piece_postions["n"] = [Hex(-2, 5, -3), Hex(2, 3, -5)]
+bottom_piece_postions["r"] = [Hex(-3, 5, -2), Hex(3, 2, -5)]
+bottom_piece_postions["q"] = [Hex(-1, 5, -4)]
+bottom_piece_postions["k"] = [Hex(1, 4, -5)]
 
 
 # Create dict of white piece positions and their images.
 # Possible to just do the same but with Hex r,s coords inverted but ehh DRY is overrated.
 top_piece_postions: dict[str, (list[Hex])] = {}
-white_piece_sprites:dict[str,tkinter.PhotoImage] = {
+white_piece_sprites: dict[str, tkinter.PhotoImage] = {
     "wp": white_pawn_image,
     "b": white_bishop_image,
     "n": white_knight_image,
@@ -122,30 +120,34 @@ white_piece_sprites:dict[str,tkinter.PhotoImage] = {
     "k": white_king_image,
 }
 
-top_piece_postions["wp"] = (
-    white_pawn_image,
-    [
-        Hex(0, -1, 1),
-        Hex(-1, -1, 2),
-        Hex(-2, -1, 3),
-        Hex(-3, -1, 4),
-        Hex(-4, -1, 5),
-        Hex(1, -2, 1),
-        Hex(2, -3, 1),
-        Hex(3, -4, 1),
-        Hex(4, -5, 1),
-    ],
-)
-top_piece_postions["b"] = (
-    white_bishop_image,
-    [Hex(0, -3, 3), Hex(0, -4, 4), Hex(0, -5, 5)],
-)
-top_piece_postions["n"] = (white_knight_image, [Hex(2, -5, 3), Hex(-2, -3, 5)])
-top_piece_postions["r"] = (white_rook_image, [Hex(3, -5, 2), Hex(-3, -2, 5)])
-top_piece_postions["q"] = (white_queen_image, [Hex(1, -5, 4)])
-top_piece_postions["k"] = (white_king_image, [Hex(-1, -4, 5)])
+# top_piece_postions["wp"] = []
+# top_piece_postions["b"] = []
+# top_piece_postions["n"] = []
+# top_piece_postions["r"] = []
+# top_piece_postions["q"] = []
+top_piece_postions["wp"] = [
+    Hex(0, -1, 1),
+    Hex(-1, -1, 2),
+    Hex(-2, -1, 3),
+    Hex(-3, -1, 4),
+    Hex(-4, -1, 5),
+    Hex(1, -2, 1),
+    Hex(2, -3, 1),
+    Hex(3, -4, 1),
+    Hex(4, -5, 1),
+]
+top_piece_postions["b"] = [
+    Hex(0, -3, 3),
+    Hex(0, -4, 4),
+    Hex(0, -5, 5),
+]
+top_piece_postions["n"] = [Hex(2, -5, 3), Hex(-2, -3, 5)]
+top_piece_postions["r"] = [Hex(3, -5, 2), Hex(-3, -2, 5)]
+top_piece_postions["q"] = [Hex(1, -5, 4)]
+top_piece_postions["k"] = [Hex(-1, -4, 5)]
 
-for piece, (image, positions) in bottom_piece_postions.items():
+for piece, positions in bottom_piece_postions.items():
+    image = black_piece_sprites[piece]
     for i, position in enumerate(positions):
         token = f"b{piece}{i}"  # id to use as a token
         cpm.Chessp.chess_pieces.append(
