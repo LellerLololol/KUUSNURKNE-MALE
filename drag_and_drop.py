@@ -23,7 +23,7 @@ class ChessBoardInteractions(tkinter.Frame):
             "item": None,
             "previous": [0, 0],
             "moves": [],
-            "object": "",
+            "object": None,
         }
 
         self.layout: hexagons.Layout = layout
@@ -37,7 +37,7 @@ class ChessBoardInteractions(tkinter.Frame):
         self.move_image = tkinter.PhotoImage(file=r"assets/select.png")
 
         # Define the first colour to move
-        self.color_to_move = "black"
+        self.color_to_move = "white"
 
         # add bindings for clicking, dragging and releasing over
         # any object with the "token" tag
@@ -133,7 +133,7 @@ class ChessBoardInteractions(tkinter.Frame):
                 else:
                     print("Stalemate")
                 self.canvas.delete("pieces")
-                self.chess_pieces = []
+                # self.chess_pieces = []
 
             # Cycle the color to move
             self.color_to_move = "black" if self.color_to_move == "white" else "white"
@@ -162,13 +162,19 @@ class ChessBoardInteractions(tkinter.Frame):
 
     def check_if_enemy_can_move(self) -> bool:
         """Check if the enemy can move"""
+        print(self.color_to_move)
         can_move = False
+        i=0
         for obj in self.chess_pieces:
+            print(len(self.chess_pieces))
             if obj.color != self.color_to_move:
                 moves, _ = eval(f"obj.{obj.type}_move()")
+                i += 1
                 if len(moves) != 0:
                     can_move = True
+                    print(i)
                     break
+        print(i)
         return can_move
 
     def drag(self, event):

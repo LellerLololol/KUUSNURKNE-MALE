@@ -56,7 +56,10 @@ canvas.pack()
 # Draw the chess board
 for hex in hex_corners:
     canvas.create_polygon(hex[0], fill=hex[1])
-something = drag_and_drop.ChessBoardInteractions(window, canvas, BOARD_LAYOUT, BOARD_LENGTH)
+something = drag_and_drop.ChessBoardInteractions(
+    window, canvas, BOARD_LAYOUT, BOARD_LENGTH
+)
+something.chess_pieces = Chessp.chess_pieces
 
 # region Chess piece loading
 # Load the images
@@ -172,6 +175,7 @@ sprites["white"] = white_piece_sprites
 #         )
 # endregion
 
+
 def set_pawn_direction(color):
     if color == "white":
         Chessp.white_pawn_move = Chessp.bottom_pawn_move
@@ -184,7 +188,8 @@ def set_pawn_direction(color):
         Chessp.black_pawn_move = Chessp.bottom_pawn_move
         Chessp.black_pawn_take = Chessp.bottom_pawn_take
 
-def initialize_pieces(first_to_go: str, if_top: bool=True):
+
+def initialize_pieces(first_to_go: str):
     """
     Initializes chess pieces on the board for the given colour.
     Args:
@@ -192,33 +197,34 @@ def initialize_pieces(first_to_go: str, if_top: bool=True):
     Returns:
         None
     """
-    something.color_to_move = first_to_go
     set_pawn_direction(first_to_go)
     for i in range(2):
         if i == 1:
-            first_to_go = "black" if first_to_go == "white" else "white"
+            if first_to_go == "white":
+                first_to_go = "black"
+            else:
+                first_to_go = "white"
         for piece, positions in piece_starting_positions[i].items():
             piece = first_to_go[0] + "p" if piece == "p" else piece
             image = sprites[first_to_go][piece]
             for i, position in enumerate(positions):
                 token = f"w{piece}{i}"  # id to use as a token
-                Chessp.chess_pieces.append(
-                Chessp(
-                    piece,
-                    "white",
-                    something.create_image_token(
-                        (hex_to_pixel(BOARD_LAYOUT, position)), image, token
-                    ),
-                    position,
-                    True,
-                    token,
+                something.chess_pieces.append(
+                    Chessp(
+                        piece,
+                        "white",
+                        something.create_image_token(
+                            (hex_to_pixel(BOARD_LAYOUT, position)), image, token
+                        ),
+                        position,
+                        True,
+                        token,
+                    )
                 )
-            )
 
 
-initialize_pieces("white")
+initialize_pieces("black")
 
-something.chess_pieces = Chessp.chess_pieces
 # endregion
 
 
