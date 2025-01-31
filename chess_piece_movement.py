@@ -1,5 +1,4 @@
 from hexagons import *
-import time  # to show if the program is active and in a loop or just crashed
 
 
 class Chessp:
@@ -145,8 +144,8 @@ class Chessp:
         for piece in chess_pieces:
             if piece.position == self.position:
                 i += 1
-        if i != 1:
-            print("hey🫦🫦🫦🫦")
+        # if i != 1:
+        #     print("hey🫦🫦🫦🫦")
         return i != 1
         # return False
 
@@ -167,8 +166,8 @@ class Chessp:
             chess_pieces = self.chess_pieces
             ignore_checkmate = False
 
-        if (
-            self.check_if_2_pieces_overlapping(chess_pieces)
+        if self.check_if_2_pieces_overlapping(
+            chess_pieces
         ):  # fuck you thats why (short circuiting debugging reasons)
             return [], False
 

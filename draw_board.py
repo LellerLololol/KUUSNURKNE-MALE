@@ -56,7 +56,9 @@ canvas.pack()
 # Draw the chess board
 for hex in hex_corners:
     canvas.create_polygon(hex[0], fill=hex[1])
-something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH)
+something = drag_and_drop.ChessBoardInteraction(
+    window, canvas, BOARD_LAYOUT, BOARD_LENGTH
+)
 
 # region Chess piece loading
 # Load the images
@@ -146,38 +148,36 @@ top_piece_postions["r"] = [Hex(3, -5, 2), Hex(-3, -2, 5)]
 top_piece_postions["q"] = [Hex(1, -5, 4)]
 top_piece_postions["k"] = [Hex(-1, -4, 5)]
 
-for piece, positions in bottom_piece_postions.items():
-    image = white_piece_sprites[piece]
-    for i, position in enumerate(positions):
-        token = f"w{piece}{i}"  # id to use as a token
-        cpm.Chessp.chess_pieces.append(
-            cpm.Chessp(
-                piece,
-                "white",
-                something.create_image_token(
-                    (hex_to_pixel(BOARD_LAYOUT, position)), image, token
-                ),
-                position,
-                True,
-                token,
+
+# Function to place pieces on the board
+def place_pieces(piece_positions, piece_sprites, color_prefix):
+    for piece, positions in piece_positions.items():
+        image = piece_sprites[piece]
+        for i, position in enumerate(positions):
+            token = f"{color_prefix}{piece}{i}"  # id to use as a token
+            cpm.Chessp.chess_pieces.append(
+                cpm.Chessp(
+                    piece,
+                    "white" if color_prefix == "w" else "black",
+                    something.create_image_token(
+                        (hex_to_pixel(BOARD_LAYOUT, position)), image, token
+                    ),
+                    position,
+                    True,
+                    token,
+                )
             )
-        )
-for piece, positions in top_piece_postions.items():
-    image = black_piece_sprites[piece]
-    for i, position in enumerate(positions):
-        token = f"b{piece}{i}"  # id to use as a token
-        cpm.Chessp.chess_pieces.append(
-            cpm.Chessp(
-                piece,
-                "black",
-                something.create_image_token(
-                    (hex_to_pixel(BOARD_LAYOUT, position)), image, token
-                ),
-                position,
-                True,
-                token,
-            )
-        )
+
+
+# Choose whether black is above or at the bottom
+white_at_bottom = True  # Change this to False if you want black to be above
+
+if not white_at_bottom:
+    place_pieces(bottom_piece_postions, black_piece_sprites, "b")
+    place_pieces(top_piece_postions, white_piece_sprites, "w")
+else:
+    place_pieces(bottom_piece_postions, white_piece_sprites, "w")
+    place_pieces(top_piece_postions, black_piece_sprites, "b")
 
 something.chess_pieces = cpm.Chessp.chess_pieces
 # endregion
