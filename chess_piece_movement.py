@@ -149,8 +149,8 @@ class Chessp:
         for piece in self.chess_pieces:
             if piece.position == self.position:
                 i += 1
-        if i != 1:
-            print("hey🫦🫦🫦🫦")
+        # if i != 1:
+        #     print("hey🫦🫦🫦🫦")
         return i != 1
         # return False
 
@@ -158,7 +158,7 @@ class Chessp:
         """Filters out moves that would put the king in check"""
         if ignore_checkmate:
             return
-        print("filtering", len(valid_spaces))
+        # print("filtering", len(valid_spaces))
         spaces = valid_spaces.copy()
         for space in spaces:
             if self._enemies_checking_post_move(space):
