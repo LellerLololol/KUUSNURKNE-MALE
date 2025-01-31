@@ -54,11 +54,12 @@ class Chessp:
         self.chess_pieces.remove(self)
         self.position = Hex(-10, 10, 0)
 
-    def check(self, dire, i, chess_pieces: list = None, ignore_checkmate=False):
+    def check(self, dire, i, chess_pieces: list, ignore_checkmate):
         # i told myself to make more readable code wth is this
-        print("using check", time.time())
-        if chess_pieces is None:
-            chess_pieces = self.chess_pieces
+        # print("using check", time.time())
+        # if chess_pieces is None:
+        #     chess_pieces = self.chess_pieces
+        # # Lowk unustasin ja panin selle checki hoopis kõikidesse move funktsioonidesse oops
         return all(
             map(lambda x, y: -5 <= y + x * i <= 5, dire, self.position)
         ) and self.get_hex(dire, i) not in map(lambda x: x.position, chess_pieces), (
@@ -67,14 +68,18 @@ class Chessp:
             else True
         )
 
-    def take_check(self, dire, i):
+    def take_check(self, dire, i, chess_pieces: list, ignore_checkmate):
         return all(
             map(lambda x, y: -5 <= y + x * i <= 5, dire, self.position)
         ) and self.get_hex(dire, i) in map(
             lambda x: x.position if x.color is not self.color else None,
-            Chessp.chess_pieces,
+            chess_pieces,
+        ), (
+            not self._enemies_checking_post_move(dire, i)
+            if not ignore_checkmate
+            else True
         )
-
+# region
     # forgot purpose of this function
     # def check_if_king(self, dire, i):
     #     # Could be integrated into the check functions to waste less cycles
@@ -82,7 +87,7 @@ class Chessp:
     #         if x.color is not self.color and x.type == "k":
     #             return True
     #     return False
-
+# endregion
     def get_hex(self, dire, i):
         """Get Hex dependinding on the direction, current position and direction multiplier"""
 
@@ -91,12 +96,12 @@ class Chessp:
         s = self.position.s + dire[2] * i
         return Hex(q, r, s)
 
-    def checked(self, v_spaces, dire, j):
-        if self.take_check(dire, j):
+    def checked(self, v_spaces, dire, j, chess_pieces: list, ignore_checkmate):
+        if all(self.take_check(dire, j, chess_pieces, ignore_checkmate)):
             # Need to add a check to see whether the colors are different or not
             # Every object has a color to its name
             # sometimes idk
-            for piece in self.chess_pieces:
+            for piece in chess_pieces:
                 if piece.position == self.get_hex(dire, j):
                     taken = piece
                     break
@@ -133,6 +138,16 @@ class Chessp:
                     return True
         return False
 
+    def check_if_2_pieces_overlapping(self) -> bool:
+        i = 0
+        for piece in self.chess_pieces:
+            if piece.position == self.position:
+                i += 1
+        if i != 1:
+            print("hey🫦🫦🫦🫦")
+        return i != 1
+        # return False
+
     def p_move(self, type, chess_pieces: list):
         """Gives all possible pawn moves (both white and black)"""
         ignore_checkmate = True
@@ -140,20 +155,27 @@ class Chessp:
             chess_pieces = self.chess_pieces
             ignore_checkmate = False
 
+        if (self.check_if_2_pieces_overlapping()):  # fuck you thats why (short circuiting debugging reasons)
+            return [], False
+
         valid_spaces = []
         pawn_move = eval(f"self.{type}_pawn_move")
         pawn_take = eval(f"self.{type}_pawn_take")
-        if all(self.check(pawn_move, 1, chess_pieces, ignore_checkmate)):
-            valid_spaces.append(self.get_hex(pawn_move, 1))
+        first_tile = self.check(pawn_move, 1, chess_pieces, ignore_checkmate)
+        if first_tile[0]:
+            if first_tile[1]:
+                valid_spaces.append(self.get_hex(pawn_move, 1))
             if self.first_move and all(
-                self.check(pawn_move, 2, chess_pieces, ignore_checkmate)
+                self.check(pawn_move, 2, chess_pieces, ignore_checkmate) # doesnt need the separate check cuz no iteration beyond here
             ):  # First move - can move 2 spaces forward
                 valid_spaces.append(self.get_hex(pawn_move, 2))
 
         # Check if pawn can take a piece
         king_check = False
         for pos in pawn_take:
-            valid_spaces, is_king = self.checked(valid_spaces, pos, 1)
+            valid_spaces, is_king = self.checked(
+                valid_spaces, pos, 1, chess_pieces, ignore_checkmate
+            )
             king_check = True if not king_check and is_king else king_check
         return valid_spaces, king_check
 
@@ -173,14 +195,24 @@ class Chessp:
         if chess_pieces is None:
             chess_pieces = self.chess_pieces
             ignore_checkmate = False
+
+        if self.check_if_2_pieces_overlapping():
+            return [], False
+
         valid_spaces = []
         king_check = False
         for dire in Chessp.rook_moves:
             i = 1
-            while all(self.check(dire, i, chess_pieces, ignore_checkmate)):
-                valid_spaces.append(self.get_hex(dire, i))
+            state = self.check(dire, i, chess_pieces, ignore_checkmate)
+            while state[0]:
+                print("rook")
+                if state[1]:
+                    valid_spaces.append(self.get_hex(dire, i))
                 i += 1
-            valid_spaces, is_king = self.checked(valid_spaces, dire, i)
+                state = self.check(dire, i, chess_pieces, ignore_checkmate)
+            valid_spaces, is_king = self.checked(
+                valid_spaces, dire, i, chess_pieces, ignore_checkmate
+            )
             king_check = True if not king_check and is_king else king_check
 
         return valid_spaces, king_check
@@ -191,14 +223,24 @@ class Chessp:
         if chess_pieces is None:
             chess_pieces = self.chess_pieces
             ignore_checkmate = False
+
+        if self.check_if_2_pieces_overlapping():
+            return [], False
+
         valid_spaces = []
         king_check = False
         for dire in Chessp.bishop_moves:
             i = 1
-            while all(self.check(dire, i, chess_pieces, ignore_checkmate)):
-                valid_spaces.append(self.get_hex(dire, i))
+            state = self.check(dire, i, chess_pieces, ignore_checkmate)
+            while state[0]:
+                # print("bishop")
+                if state[1]:
+                    valid_spaces.append(self.get_hex(dire, i))
                 i += 1
-            valid_spaces, is_king = self.checked(valid_spaces, dire, i)
+                state = self.check(dire, i, chess_pieces, ignore_checkmate)
+            valid_spaces, is_king = self.checked(
+                valid_spaces, dire, i, chess_pieces, ignore_checkmate
+            )
             king_check = True if not king_check and is_king else king_check
         return valid_spaces, king_check
 
@@ -209,12 +251,17 @@ class Chessp:
             chess_pieces = self.chess_pieces
             ignore_checkmate = False
 
+        if self.check_if_2_pieces_overlapping():
+            return [], False
+
         valid_spaces = []
         king_check = False
         for dire in Chessp.knight_moves:
             if all(self.check(dire, 1, chess_pieces, ignore_checkmate)):
                 valid_spaces.append(self.get_hex(dire, 1))
-            valid_spaces, is_king = self.checked(valid_spaces, dire, 1)
+            valid_spaces, is_king = self.checked(
+                valid_spaces, dire, 1, chess_pieces, ignore_checkmate
+            )
             king_check = True if not king_check and is_king else king_check
         return valid_spaces, king_check
 
@@ -224,21 +271,32 @@ class Chessp:
         if chess_pieces is None:
             chess_pieces = self.chess_pieces
             ignore_checkmate = False
+
+        if self.check_if_2_pieces_overlapping():
+            return [], False
+
         valid_spaces = []
         king_check = False
         for dire in Chessp.rook_moves:
             if all(self.check(dire, 1, chess_pieces, ignore_checkmate)):
                 valid_spaces.append(self.get_hex(dire, 1))
-            valid_spaces, is_king = self.checked(valid_spaces, dire, 1)
+            valid_spaces, is_king = self.checked(
+                valid_spaces, dire, 1, chess_pieces, ignore_checkmate
+            )
         for dire in Chessp.bishop_moves:
             if all(self.check(dire, 1, chess_pieces, ignore_checkmate)):
                 valid_spaces.append(self.get_hex(dire, 1))
-            valid_spaces, is_king = self.checked(valid_spaces, dire, 1)
+            valid_spaces, is_king = self.checked(
+                valid_spaces, dire, 1, chess_pieces, ignore_checkmate
+            )
             king_check = True if not king_check and is_king else king_check
         return valid_spaces, king_check
 
     def q_move(self, chess_pieces: list = None):
         """Gives all possible queen moves"""
+        if self.check_if_2_pieces_overlapping():
+            return [], False
+
         valid_spaces, king_check = self.r_move(chess_pieces)
         b_moves, king_check2 = self.b_move(chess_pieces)
         king_check = king_check or king_check2

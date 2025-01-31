@@ -124,7 +124,9 @@ class Example(tkinter.Frame):
             _, can_target_king = eval(
                 f'self._drag_data["object"].{self._drag_data["object"].type}_move()'
             )
+            print(can_target_king)
             enemy_can_move = self.check_if_enemy_can_move()
+            print(enemy_can_move)
             if not enemy_can_move:
                 if can_target_king:
                     print("Checkmate")
