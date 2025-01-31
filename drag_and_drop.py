@@ -1,13 +1,13 @@
 import tkinter
 import hexagons
 import chess_piece_movement as cpm
-
+import chess_bot
 
 class Example(tkinter.Frame):
     """Illustrate how to drag items on a Tkinter canvas"""
 
     def __init__(
-        self, parent, canvas: tkinter.Canvas, layout: hexagons.Layout, board_size: int
+        self, parent, canvas: tkinter.Canvas, layout: hexagons.Layout, board_size: int, opponent_player: bool,
     ):
         tkinter.Frame.__init__(self, parent)
 
@@ -39,6 +39,9 @@ class Example(tkinter.Frame):
         # Define the first colour to move
         self.color_to_move = "black"
 
+        # Whether the opponent is a player or not
+        self.opponent_player = opponent_player
+
         # add bindings for clicking, dragging and releasing over
         # any object with the "token" tag
         self.canvas.tag_bind("piece", "<ButtonPress-1>", self.drag_start)
@@ -54,6 +57,20 @@ class Example(tkinter.Frame):
     def create_temp_image(self, xy, image):
         """Create an image with a "remove" token"""
         self.canvas.create_image(xy[0], xy[1], image=image, tags=("remove"))
+
+    def move_object(self, item, cur_coords, current_hex):
+        lock_coords = hexagons.hex_to_pixel(self.layout, current_hex)
+        self.canvas.move(
+            item,
+            lock_coords[0] - cur_coords[0],
+            lock_coords[1] - cur_coords[1],
+        )
+
+    def take_piece(self, current_hex):
+        takeable = [i for i in self.chess_pieces if i.position == current_hex]
+        if takeable != []:
+            self.canvas.delete(takeable[0].token)
+            self.chess_pieces.remove(takeable[0])
 
     def drag_start(self, event):
         """Begin drag of an object"""
@@ -71,7 +88,7 @@ class Example(tkinter.Frame):
             ),
         )
         for obj in self.chess_pieces:
-            if start_coords == obj.position and self.color_to_move == obj.color:
+            if start_coords == obj.position and self.color_to_move == obj.color and (self.opponent_player or self.color_to_move == 'black'):
                 self._drag_data["moves"], _ = eval(f"obj.{obj.type}_move()")
                 self._drag_data["object"] = obj
                 for move in self._drag_data[
@@ -98,26 +115,16 @@ class Example(tkinter.Frame):
             and self.canvas.type(self._drag_data["item"]) != "polygon"
             and current_hex in self._drag_data["moves"]
             and self._drag_data["object"].color == self.color_to_move
+            and (self.opponent_player or self.color_to_move == 'black')
         ):
             # eval(f'cur_object.{cur_type}_move()'):
             # object is in boundaries: lock it in the middle of hex
             # object also does a legal move
             # object itself is also not a hex
-            lock_coords = hexagons.hex_to_pixel(self.layout, current_hex)
-            self.canvas.move(
-                self._drag_data["item"],
-                lock_coords[0] - cur_coords[0],
-                lock_coords[1] - cur_coords[1],
-            )
-            # chech if you can KILL
-            takeable = [i for i in self.chess_pieces if i.position == current_hex]
-            if takeable != []:
-                self.canvas.delete(takeable[0].token)
-                self.chess_pieces.remove(takeable[0])
-                # cpos = hexagons.hex_to_pixel(self.layout, takeable[0].position)
-                # self.canvas.move(self.canvas.find_closest(cpos[0], cpos[1])[0], -1000, -1000)
-                # self.canvas.move(self._drag_data['item'], 1000, 1000)
-                # takeable[0].deinit()
+            # gamemode is either pvp or it's black's turn
+            
+            self.move_object(self._drag_data['item'], cur_coords, current_hex)
+            self.take_piece(current_hex)
 
             # TODO: Add check for checkmate and stalemate here
             # Not working
@@ -157,6 +164,19 @@ class Example(tkinter.Frame):
         self._drag_data["y"] = 0
         self._drag_data["previous"] = [0, 0]
         self._drag_data["moves"] = []
+
+        # Computer's turn
+        if not self.opponent_player and self.color_to_move == 'white':
+            piece, move = chess_bot.rando_move()
+
+            # move piece, update color
+            self.move_object(piece.token, hexagons.hex_to_pixel(self.layout, piece.position), move)
+            self.take_piece(move)
+            self.color_to_move = "black" if self.color_to_move == "white" else "white"
+
+            # Update moved chess piece data
+            piece.position = move
+            piece.first_move = False
 
     def check_if_enemy_can_move(self) -> bool:
         # Not working

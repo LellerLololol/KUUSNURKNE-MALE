@@ -56,7 +56,6 @@ class Chessp:
 
     def check(self, dire, i, chess_pieces: list = None, ignore_checkmate=False):
         # i told myself to make more readable code wth is this
-        print("using check", time.time())
         if chess_pieces is None:
             chess_pieces = self.chess_pieces
         return all(
