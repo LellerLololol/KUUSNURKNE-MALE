@@ -107,10 +107,16 @@ class ChessBoardInteraction(tkinter.Frame):
             piece, move = chess_bot.find_best_move(self.chess_pieces, self.bot_color)
 
             # move piece, update color
+            self._drag_data["object"] = piece
+            piece = [i for i in self.chess_pieces if i.token == piece.token][0]
+
             self.move_object(
                 piece.token, hexagons.hex_to_pixel(self.layout, piece.position), move
             )
             self.take_piece(move)
+            # print(len(self.chess_pieces))
+            # print(piece.position)
+            # print(move)
             if self.can_promote():
                 self.promote_bot(piece)
             self.checkcheckmateorstalestalemate()
