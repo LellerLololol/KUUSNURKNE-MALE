@@ -84,6 +84,24 @@ class ChessBoardInteraction(tkinter.Frame):
             self.canvas.delete(takeable[0].token)
             self.chess_pieces.remove(takeable[0])
 
+    def checkcheckmateorstalestalemate(self):
+        # TODO: Add check for checkmate and stalemate here
+        # Not working
+        # print(can_target_king)
+        enemy_can_move = self.check_if_enemy_can_move()
+        # print(enemy_can_move)
+        if not enemy_can_move:
+            if self.current_side_can_attack_king():
+                ptext = "Checkmate\n" + self.color_to_move
+            else:
+                ptext = "Stalemate"
+            self.canvas.delete("piece")
+            self.canvas.delete("board")
+            self.canvas.create_text(
+                300, 320, text=ptext, font=("Comic Sans MS", 80)
+            )
+            self.chess_pieces = []
+
     def enemy_move(self):
         if not self.opponent_player and self.color_to_move == self.bot_color:
             piece, move = chess_bot.find_best_move(self.chess_pieces, self.bot_color)
@@ -95,6 +113,8 @@ class ChessBoardInteraction(tkinter.Frame):
             self.take_piece(move)
             if self.can_promote():
                 self.promote_bot(piece)
+            self.checkcheckmateorstalestalemate()
+            
             self.color_to_move = "black" if self.color_to_move == "white" else "white"
 
             # Update moved chess piece data
@@ -163,22 +183,7 @@ class ChessBoardInteraction(tkinter.Frame):
             self._drag_data["object"].position = current_hex
             self._drag_data["object"].first_move = False
 
-            # TODO: Add check for checkmate and stalemate here
-            # Not working
-            # print(can_target_king)
-            enemy_can_move = self.check_if_enemy_can_move()
-            # print(enemy_can_move)
-            if not enemy_can_move:
-                if self.current_side_can_attack_king():
-                    ptext = "Checkmate"
-                else:
-                    ptext = "Stalemate"
-                self.canvas.delete("piece")
-                self.canvas.delete("board")
-                self.canvas.create_text(
-                    300, 320, text=ptext, font=("Comic Sans MS", 80)
-                )
-                self.chess_pieces = []
+            self.checkcheckmateorstalestalemate()
 
             # Check for pawn promotion
             if self.can_promote():
