@@ -1,14 +1,14 @@
 # Script will create a window whether the opponent is a bot or a player
 
 import tkinter
-import draw_board
+from draw_board import draw_board, load_pieces, BOARD_LAYOUT, BOARD_LENGTH
 import drag_and_drop
 
 def acitivate(seth_magic_man, white_starts):
     """whimsical board"""
     
-    draw_board.draw_board(canvas)
-    draw_board.load_pieces(
+    draw_board(canvas)
+    load_pieces(
         seth_magic_man, white_starts,
         white_pawn_image, white_bishop_image, white_knight_image, 
         white_rook_image, white_queen_image, white_king_image, 
@@ -30,7 +30,7 @@ def load_pvp():
     global something
     
     # Load dnd
-    something = drag_and_drop.ChessBoardInteraction(window, canvas, draw_board.BOARD_LAYOUT, draw_board.BOARD_LENGTH, True)
+    something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH, True)
 
     # Remove current buttons
     player_button.destroy()
@@ -42,7 +42,7 @@ def load_bot():
     global something
     
     # Load dnd
-    something = drag_and_drop.ChessBoardInteraction(window, canvas, draw_board.BOARD_LAYOUT, draw_board.BOARD_LENGTH, False)
+    something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH, False)
 
     # Remove current buttons
     player_button.destroy()
@@ -86,6 +86,24 @@ black_knight_image = tkinter.PhotoImage(file=r"assets\black_knight.png")
 black_rook_image = tkinter.PhotoImage(file=r"assets\black_rook.png")
 black_queen_image = tkinter.PhotoImage(file=r"assets\black_queen.png")
 black_king_image = tkinter.PhotoImage(file=r"assets\black_king.png")
+black_piece_sprites: dict[str, tkinter.PhotoImage] = {
+    "bp": black_pawn_image,
+    "wp": black_pawn_image,
+    "b": black_bishop_image,
+    "n": black_knight_image,
+    "r": black_rook_image,
+    "q": black_queen_image,
+    "k": black_king_image,
+}
+white_piece_sprites: dict[str, tkinter.PhotoImage] = {
+    "wp": white_pawn_image,
+    "bp": white_pawn_image,
+    "b": white_bishop_image,
+    "n": white_knight_image,
+    "r": white_rook_image,
+    "q": white_queen_image,
+    "k": white_king_image,
+}
 
 # Tkinter canvas
 canvas = tkinter.Canvas(window, width=600, height=640, bg="light gray")

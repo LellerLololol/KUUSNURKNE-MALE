@@ -170,7 +170,7 @@ class ChessBoardInteraction(tkinter.Frame):
 
         # Computer's turn
         if not self.opponent_player and self.color_to_move == 'white':
-            piece, move = chess_bot.rando_move()
+            piece, move = chess_bot.find_best_move(self.chess_pieces)
 
             # move piece, update color
             self.move_object(piece.token, hexagons.hex_to_pixel(self.layout, piece.position), move)
