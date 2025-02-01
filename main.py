@@ -8,7 +8,7 @@ def acitivate(white_starts):
     """whimsical board"""
     
     # Load dnd
-    something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH, False, white_starts)
+    something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH, against_player, white_starts)
     something.piece_sprites["white"] = white_piece_sprites
     something.piece_sprites["black"] = black_piece_sprites
 
@@ -33,12 +33,9 @@ def bow_buttons():
     black_button.place(x=50, y=100)
 
 def load_pvp():
-    global something
-    
-    # Load dnd
-    something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH, True)
-    something.piece_sprites["white"] = white_piece_sprites
-    something.piece_sprites["black"] = black_piece_sprites
+    global against_player
+
+    against_player = True
 
     # Remove current buttons
     player_button.destroy()
@@ -47,7 +44,9 @@ def load_pvp():
     bow_buttons()
 
 def load_bot():
-    global something
+    global against_player
+
+    against_player = False
 
     # Remove current buttons
     player_button.destroy()
