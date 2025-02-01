@@ -48,7 +48,7 @@ def draw_board(canvas):
 
     # Draw the chess board
     for hex in hex_corners:
-        canvas.create_polygon(hex[0], fill=hex[1])
+        canvas.create_polygon(hex[0], fill=hex[1], tags="board")
 
 def load_pieces(
     something, white_at_bottom,

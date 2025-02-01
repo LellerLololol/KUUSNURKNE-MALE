@@ -140,8 +140,9 @@ class ChessBoardInteraction(tkinter.Frame):
                     print("Checkmate")
                 else:
                     print("Stalemate")
+                self.canvas.delete("piece")
+                self.canvas.delete("board")
                 self.chess_pieces = []
-                self.canvas.delete("pieces")
 
             # Cycle the color to move
             self.color_to_move = "black" if self.color_to_move == "white" else "white"
