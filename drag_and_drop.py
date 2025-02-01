@@ -218,13 +218,13 @@ class ChessBoardInteraction(tkinter.Frame):
         if self._drag_data["object"].type == "wp":
             if (
                 self._drag_data["object"].position[1] == -5
-                or self._drag_data["object"].position[1] == 5
+                or self._drag_data["object"].position[2] == 5
             ):
                 return True
         elif self._drag_data["object"].type == "bp":
             if (
                 self._drag_data["object"].position[1] == 5
-                or self._drag_data["object"].position[1] == -5
+                or self._drag_data["object"].position[2] == -5
             ):
                 return True
         return False
