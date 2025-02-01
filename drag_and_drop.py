@@ -30,7 +30,8 @@ class ChessBoardInteraction(tkinter.Frame):
         self.board_size: int = board_size
 
         # List for the chess pieces (chess pices are loaded in draw_board.py)
-        self.chess_pieces: list[cpm.Chessp] = []
+        self.chess_pieces: list[cpm.Chessp] = []#
+        cpm.Chessp.chess_pieces = self.chess_pieces
         # self.obj_to_id = {} # TODO: Otsustada kas on vaja
 
         # Load the image
@@ -137,11 +138,12 @@ class ChessBoardInteraction(tkinter.Frame):
             # print(enemy_can_move)
             if not enemy_can_move:
                 if self.current_side_can_attack_king():
-                    print("Checkmate")
+                    ptext = "Checkmate"
                 else:
-                    print("Stalemate")
+                    ptext = "Stalemate"
                 self.canvas.delete("piece")
                 self.canvas.delete("board")
+                self.canvas.create_text(300, 320, text=ptext, font=('Comic Sans MS', 80))
                 self.chess_pieces = []
 
             # Cycle the color to move
