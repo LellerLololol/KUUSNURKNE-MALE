@@ -14,6 +14,7 @@ class ChessBoardInteraction(tkinter.Frame):
         layout: hexagons.Layout,
         board_size: int,
         opponent_player: bool,
+        white_starts: bool,
     ):
         tkinter.Frame.__init__(self, parent)
 
@@ -46,7 +47,9 @@ class ChessBoardInteraction(tkinter.Frame):
         self.move_image = tkinter.PhotoImage(file=r"assets/select.png")
 
         # Define the first colour to move
+        self.white_started = white_starts
         self.color_to_move = "white"
+        self.bot_color = 'black' if white_starts else 'white'
 
         # Whether the opponent is a player or not
         self.opponent_player = opponent_player
@@ -81,6 +84,23 @@ class ChessBoardInteraction(tkinter.Frame):
             self.canvas.delete(takeable[0].token)
             self.chess_pieces.remove(takeable[0])
 
+    def enemy_move(self):
+        if not self.opponent_player and self.color_to_move == self.bot_color:
+            piece, move = chess_bot.find_best_move(self.chess_pieces, self.bot_color)
+
+            # move piece, update color
+            self.move_object(
+                piece.token, hexagons.hex_to_pixel(self.layout, piece.position), move
+            )
+            self.take_piece(move)
+            if self.can_promote():
+                self.promote_bot(piece)
+            self.color_to_move = "black" if self.color_to_move == "white" else "white"
+
+            # Update moved chess piece data
+            piece.position = move
+            piece.first_move = False
+
     def drag_start(self, event):
         """Begin drag of an object"""
         # record the item and its location
@@ -100,7 +120,7 @@ class ChessBoardInteraction(tkinter.Frame):
             if (
                 start_coords == obj.position
                 and self.color_to_move == obj.color
-                and (self.opponent_player or self.color_to_move == "black")
+                and (self.opponent_player or self.color_to_move != self.bot_color)
             ):
                 self._drag_data["moves"], _ = eval(f"obj.{obj.type}_move()")
                 self._drag_data["object"] = obj
@@ -128,7 +148,7 @@ class ChessBoardInteraction(tkinter.Frame):
             and self.canvas.type(self._drag_data["item"]) != "polygon"
             and current_hex in self._drag_data["moves"]
             and self._drag_data["object"].color == self.color_to_move
-            and (self.opponent_player or self.color_to_move == "black")
+            and (self.opponent_player or self.color_to_move != self.bot_color)
         ):
             # eval(f'cur_object.{cur_type}_move()'):
             # object is in boundaries: lock it in the middle of hex
@@ -186,21 +206,7 @@ class ChessBoardInteraction(tkinter.Frame):
         self._drag_data["moves"] = []
 
         # Computer's turn
-        if not self.opponent_player and self.color_to_move == "white":
-            piece, move = chess_bot.find_best_move(self.chess_pieces)
-
-            # move piece, update color
-            self.move_object(
-                piece.token, hexagons.hex_to_pixel(self.layout, piece.position), move
-            )
-            self.take_piece(move)
-            if self.can_promote():
-                self.promote_bot(piece)
-            self.color_to_move = "black" if self.color_to_move == "white" else "white"
-
-            # Update moved chess piece data
-            piece.position = move
-            piece.first_move = False
+        self.enemy_move()
 
     def check_if_enemy_can_move(self) -> bool:
         """Check if the enemy can move"""

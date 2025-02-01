@@ -4,12 +4,17 @@ import tkinter
 from draw_board import draw_board, load_pieces, BOARD_LAYOUT, BOARD_LENGTH
 import drag_and_drop
 
-def acitivate(seth_magic_man, white_starts):
+def acitivate(white_starts):
     """whimsical board"""
     
+    # Load dnd
+    something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH, False, white_starts)
+    something.piece_sprites["white"] = white_piece_sprites
+    something.piece_sprites["black"] = black_piece_sprites
+
     draw_board(canvas)
     load_pieces(
-        seth_magic_man, white_starts,
+        something, white_starts,
         white_pawn_image, white_bishop_image, white_knight_image, 
         white_rook_image, white_queen_image, white_king_image, 
         black_pawn_image, black_bishop_image, black_knight_image, 
@@ -43,11 +48,6 @@ def load_pvp():
 
 def load_bot():
     global something
-    
-    # Load dnd
-    something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH, False)
-    something.piece_sprites["white"] = white_piece_sprites
-    something.piece_sprites["black"] = black_piece_sprites
 
     # Remove current buttons
     player_button.destroy()
@@ -61,7 +61,7 @@ def load_white():
     white_button.destroy()
     black_button.destroy()
 
-    acitivate(something, True)
+    acitivate(True)
 
 def load_black():
 
@@ -69,7 +69,7 @@ def load_black():
     white_button.destroy()
     black_button.destroy()
 
-    acitivate(something, False)
+    acitivate(False)
 
 # Tkinter window
 window = tkinter.Tk()

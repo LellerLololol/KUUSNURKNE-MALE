@@ -128,7 +128,6 @@ def load_pieces(
     top_piece_postions["n"] = [Hex(2, -5, 3), Hex(-2, -3, 5)]
     top_piece_postions["r"] = [Hex(3, -5, 2), Hex(-3, -2, 5)]
 
-
     if not white_at_bottom:
         bottom_piece_postions["q"] = [Hex(1, 4, -5)]
         bottom_piece_postions["k"] = [Hex(-1, 5, -4)]
@@ -144,6 +143,9 @@ def load_pieces(
         place_pieces(bottom_piece_postions, white_piece_sprites, "w", something)
         place_pieces(top_piece_postions, black_piece_sprites, "b", something)
 
+    drag_and_drop.ChessBoardInteraction.enemy_move(something)
+
+    something.chess_pieces = cpm.Chessp.chess_pieces
 
 
 # Function to place pieces on the board

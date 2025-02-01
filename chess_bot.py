@@ -33,12 +33,12 @@ def rando_move():
     else:
         raise Exception("No more pieces are on board - player won")
     
-def evaluate_position(chess_pieces):
-    score_system = {'bp': 10, 'b': 30, 'n': 30, 'r': 50, 'q': 90, 'k': 800}
+def evaluate_position(chess_pieces, bot_color):
+    score_system = {'wp': 10, 'bp': 10, 'b': 30, 'n': 30, 'r': 50, 'q': 90, 'k': 800}
     score = 0
     for p in chess_pieces:
         val = score_system.get(p.type, 0)
-        score += val if p.color == 'white' else -val
+        score += val if p.color == bot_color else -val
     return score
 
 def generate_all_moves(chess_pieces, color):
@@ -68,19 +68,20 @@ def undo_move(piece, old_position, captured_piece, chess_pieces):
     if captured_piece:
         chess_pieces.append(captured_piece)
 
-def minimax(chess_pieces, depth, alpha, beta, is_maximizing):
+def minimax(chess_pieces, bot_color, depth, alpha, beta, is_maximizing):
     if depth == 0:
-        return evaluate_position(chess_pieces), None
+        return evaluate_position(chess_pieces, bot_color), None
     
     best_move = None
+    not_bot_color = 'black' if bot_color == 'white' else 'white'
     if is_maximizing:
         max_eval = float('-inf')
         # Generate all possible moves for the maximizing side
-        for piece, move in generate_all_moves(chess_pieces, 'white'):  # define generate_all_moves
+        for piece, move in generate_all_moves(chess_pieces, bot_color):  # define generate_all_moves
             # Make hypothetical move
             old_position = piece.position
             captured = move_piece(piece, move, chess_pieces)  # define move_piece
-            eval_val, _ = minimax(chess_pieces, depth - 1, alpha, beta, False)
+            eval_val, _ = minimax(chess_pieces, bot_color, depth - 1, alpha, beta, False)
             # Undo move
             undo_move(piece, old_position, captured, chess_pieces)  # define undo_move
             
@@ -94,10 +95,10 @@ def minimax(chess_pieces, depth, alpha, beta, is_maximizing):
     else:
         min_eval = float('inf')
         # Generate all possible moves for the minimizing side
-        for piece, move in generate_all_moves(chess_pieces, 'black'):
+        for piece, move in generate_all_moves(chess_pieces, not_bot_color):
             old_position = piece.position
             captured = move_piece(piece, move, chess_pieces)
-            eval_val, _ = minimax(chess_pieces, depth - 1, alpha, beta, True)
+            eval_val, _ = minimax(chess_pieces, bot_color, depth - 1, alpha, beta, True)
             undo_move(piece, old_position, captured, chess_pieces)
 
             if eval_val < min_eval:
@@ -108,8 +109,8 @@ def minimax(chess_pieces, depth, alpha, beta, is_maximizing):
                 break
         return min_eval, best_move
 
-def find_best_move(chess_pieces):
+def find_best_move(chess_pieces, bot_color):
     # Look 4 moves ahead
     chess_pieces = copy.deepcopy(chess_pieces)
-    _, best = minimax(chess_pieces, depth=3, alpha=float('-inf'), beta=float('inf'), is_maximizing=True)
+    _, best = minimax(chess_pieces, bot_color, depth=2, alpha=float('-inf'), beta=float('inf'), is_maximizing=True)
     return best
