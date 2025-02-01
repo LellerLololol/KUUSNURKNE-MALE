@@ -110,6 +110,7 @@ def load_pieces(
     # top_piece_postions["r"] = []
     # top_piece_postions["q"] = []
     top_piece_postions["bp"] = [
+
         Hex(0, -1, 1),
         Hex(-1, -1, 2),
         Hex(-2, -1, 3),

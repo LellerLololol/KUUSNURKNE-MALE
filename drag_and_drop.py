@@ -37,6 +37,7 @@ class ChessBoardInteraction(tkinter.Frame):
 
         self.layout: hexagons.Layout = layout
         self.board_size: int = board_size
+        self.checked: bool = False
 
         # List for the chess pieces (chess pices are loaded in draw_board.py)
         self.chess_pieces: list[cpm.Chessp] = []  #
@@ -77,6 +78,7 @@ class ChessBoardInteraction(tkinter.Frame):
             lock_coords[0] - cur_coords[0],
             lock_coords[1] - cur_coords[1],
         )
+
 
     def take_piece(self, current_hex):
         takeable = [i for i in self.chess_pieces if i.position == current_hex]
@@ -127,6 +129,7 @@ class ChessBoardInteraction(tkinter.Frame):
             piece.position = move
             piece.first_move = False
 
+
     def drag_start(self, event):
         """Begin drag of an object"""
         # record the item and its location
@@ -149,10 +152,10 @@ class ChessBoardInteraction(tkinter.Frame):
                 and (self.opponent_player or self.color_to_move != self.bot_color)
             ):
                 self._drag_data["moves"], _ = eval(f"obj.{obj.type}_move()")
+
                 self._drag_data["object"] = obj
-                for move in self._drag_data[
-                    "moves"
-                ]:  # Draws all possible spaces for a move
+                for move in self._drag_data["moves"]:
+                    # Draws all possible spaces for a move
                     self.create_temp_image(
                         hexagons.hex_to_pixel(self.layout, move), self.move_image
                     )
@@ -186,8 +189,32 @@ class ChessBoardInteraction(tkinter.Frame):
             self.take_piece(current_hex)
 
             # Update moved chess piece data
+            self.move_object(cur_coords, current_hex)
+
+            # chech if you can KILL
+            takeable = [i for i in self.chess_pieces if i.position == current_hex]
+            if takeable != []:
+                self.canvas.delete(takeable[0].token)
+                self.chess_pieces.remove(takeable[0])
+                # cpos = hexagons.hex_to_pixel(self.layout, takeable[0].position)
+                # self.canvas.move(self.canvas.find_closest(cpos[0], cpos[1])[0], -1000, -1000)
+                # self.canvas.move(self._drag_data['item'], 1000, 1000)
+                # takeable[0].deinit()
             self._drag_data["object"].position = current_hex
             self._drag_data["object"].first_move = False
+            # Check all moves and see if any of them attacks the king
+            for pc in self.chess_pieces:
+                if (pc.type)[1] == 'k':
+                    king_piece = pc
+                    break
+            for pc in self.chess_pieces:
+                typo = pc.type[1] if pc.type[1] != 'p' else pc.type
+                if king_piece.position in eval(f'cpm.Chessp.{typo}_move(pc)') and pc.color != king_piece.color:
+                    self.checked = True
+                    print('checked')
+
+            # Cycle the color to move
+            self.color_to_move = "black" if self.color_to_move == "white" else "white"
 
             self.checkcheckmateorstalestalemate()
 

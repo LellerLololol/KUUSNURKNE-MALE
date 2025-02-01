@@ -1,6 +1,5 @@
 from hexagons import *
 
-
 class Chessp:
 
     black_pawn_move = Hex(0, 1, -1)
