@@ -15,6 +15,7 @@ def acitivate(seth_magic_man, white_starts):
         black_pawn_image, black_bishop_image, black_knight_image, 
         black_rook_image, black_queen_image, black_king_image
     )
+    
 
 def bow_buttons():
     global white_button
@@ -31,6 +32,8 @@ def load_pvp():
     
     # Load dnd
     something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH, True)
+    something.piece_sprites["white"] = white_piece_sprites
+    something.piece_sprites["black"] = black_piece_sprites
 
     # Remove current buttons
     player_button.destroy()
@@ -43,6 +46,8 @@ def load_bot():
     
     # Load dnd
     something = drag_and_drop.ChessBoardInteraction(window, canvas, BOARD_LAYOUT, BOARD_LENGTH, False)
+    something.piece_sprites["white"] = white_piece_sprites
+    something.piece_sprites["black"] = black_piece_sprites
 
     # Remove current buttons
     player_button.destroy()
