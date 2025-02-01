@@ -125,15 +125,18 @@ class ChessBoardInteraction(tkinter.Frame):
             
             self.move_object(self._drag_data['item'], cur_coords, current_hex)
             self.take_piece(current_hex)
+            
+            # Update moved chess piece data
+            self._drag_data["object"].position = current_hex
+            self._drag_data["object"].first_move = False
 
             # TODO: Add check for checkmate and stalemate here
             # Not working
             # print(can_target_king)
-            can_target_king = self.current_side_can_attack_king
             enemy_can_move = self.check_if_enemy_can_move()
             # print(enemy_can_move)
             if not enemy_can_move:
-                if can_target_king:
+                if self.current_side_can_attack_king():
                     print("Checkmate")
                 else:
                     print("Stalemate")
@@ -143,9 +146,6 @@ class ChessBoardInteraction(tkinter.Frame):
             # Cycle the color to move
             self.color_to_move = "black" if self.color_to_move == "white" else "white"
 
-            # Update moved chess piece data
-            self._drag_data["object"].position = current_hex
-            self._drag_data["object"].first_move = False
 
         else:
             # object is out of boundaries: move it back to the place it started
