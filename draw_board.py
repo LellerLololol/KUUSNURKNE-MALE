@@ -62,6 +62,7 @@ def load_pieces(
     bottom_piece_postions: dict[str, list[Hex]] = {}
     black_piece_sprites: dict[str, tkinter.PhotoImage] = {
         "bp": black_pawn_image,
+        "wp": black_pawn_image,
         "b": black_bishop_image,
         "n": black_knight_image,
         "r": black_rook_image,
@@ -96,6 +97,7 @@ def load_pieces(
     top_piece_postions: dict[str, (list[Hex])] = {}
     white_piece_sprites: dict[str, tkinter.PhotoImage] = {
         "wp": white_pawn_image,
+        "bp": white_pawn_image,
         "b": white_bishop_image,
         "n": white_knight_image,
         "r": white_rook_image,
