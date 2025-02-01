@@ -8,6 +8,7 @@ import chess_piece_movement as cpm
 BOARD_LAYOUT = Layout(layout_flat, Point(30, 30), Point(300, 320))
 BOARD_LENGTH = 5
 
+
 # Shades for board (later on change to actually appealing static colors)
 # Shades are stored as hex values
 shade1 = "#%02x%02x%02x" % (
@@ -169,6 +170,7 @@ def place_pieces(piece_positions, piece_sprites, color_prefix):
             )
 
 
+
 # Choose whether black is above or at the bottom
 white_at_bottom = True  # Change this to False if you want black to be above
 
@@ -183,4 +185,5 @@ something.chess_pieces = cpm.Chessp.chess_pieces
 # endregion
 
 
-window.mainloop()
+
+    something.chess_pieces = cpm.Chessp.chess_pieces
