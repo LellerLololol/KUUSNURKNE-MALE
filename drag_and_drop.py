@@ -1,13 +1,20 @@
 import tkinter
 import hexagons
 import chess_piece_movement as cpm
+import chess_bot
 
 
-class Example(tkinter.Frame):
+class ChessBoardInteraction(tkinter.Frame):
     """Illustrate how to drag items on a Tkinter canvas"""
 
     def __init__(
-        self, parent, canvas: tkinter.Canvas, layout: hexagons.Layout, board_size: int
+        self,
+        parent,
+        canvas: tkinter.Canvas,
+        layout: hexagons.Layout,
+        board_size: int,
+        opponent_player: bool,
+        white_starts: bool,
     ):
         tkinter.Frame.__init__(self, parent)
 
@@ -26,19 +33,27 @@ class Example(tkinter.Frame):
             "object": "",
         }
 
+        self.piece_sprites = {}
+
         self.layout: hexagons.Layout = layout
         self.board_size: int = board_size
         self.checked: bool = False
 
         # List for the chess pieces (chess pices are loaded in draw_board.py)
-        self.chess_pieces: list[cpm.Chessp] = []
+        self.chess_pieces: list[cpm.Chessp] = []  #
+        cpm.Chessp.chess_pieces = self.chess_pieces
         # self.obj_to_id = {} # TODO: Otsustada kas on vaja
 
         # Load the image
         self.move_image = tkinter.PhotoImage(file=r"assets/select.png")
 
         # Define the first colour to move
-        self.color_to_move = "black"
+        self.white_started = white_starts
+        self.color_to_move = "white"
+        self.bot_color = 'black' if white_starts else 'white'
+
+        # Whether the opponent is a player or not
+        self.opponent_player = opponent_player
 
         # add bindings for clicking, dragging and releasing over
         # any object with the "token" tag
@@ -56,29 +71,64 @@ class Example(tkinter.Frame):
         """Create an image with a "remove" token"""
         self.canvas.create_image(xy[0], xy[1], image=image, tags=("remove"))
 
-    def move_object(self, cur_coords, current_hex):
-        """Move object to a given position"""
-        
-        # Counterintuitively, current_hex means end position
+    def move_object(self, item, cur_coords, current_hex):
         lock_coords = hexagons.hex_to_pixel(self.layout, current_hex)
         self.canvas.move(
-            self._drag_data["item"],
+            item,
             lock_coords[0] - cur_coords[0],
             lock_coords[1] - cur_coords[1],
         )
 
-    def flip_board(self):
-        """Flip all chess piece positions"""
 
-        for pc in cpm.Chessp.chess_pieces:
-            pc_coords = pc.position
-            flipped_coords = list(map(lambda x: -x, pc_coords))
-            hex_flipped = hexagons.Hex(flipped_coords[0], flipped_coords[1], flipped_coords[2])
-            self.move_object(
-                hexagons.hex_to_pixel(self.layout, pc.position), 
-                hex_flipped
+    def take_piece(self, current_hex):
+        takeable = [i for i in self.chess_pieces if i.position == current_hex]
+        if takeable != []:
+            self.canvas.delete(takeable[0].token)
+            self.chess_pieces.remove(takeable[0])
+
+    def checkcheckmateorstalestalemate(self):
+        # TODO: Add check for checkmate and stalemate here
+        # Not working
+        # print(can_target_king)
+        enemy_can_move = self.check_if_enemy_can_move()
+        # print(enemy_can_move)
+        if not enemy_can_move:
+            if self.current_side_can_attack_king():
+                ptext = "Checkmate\n" + self.color_to_move
+            else:
+                ptext = "Stalemate"
+            self.canvas.delete("piece")
+            self.canvas.delete("board")
+            self.canvas.create_text(
+                300, 320, text=ptext, font=("Comic Sans MS", 80)
             )
-            pc.position = hex_flipped
+            self.chess_pieces = []
+
+    def enemy_move(self):
+        if not self.opponent_player and self.color_to_move == self.bot_color:
+            piece, move = chess_bot.find_best_move(self.chess_pieces, self.bot_color)
+
+            # move piece, update color
+            self._drag_data["object"] = piece
+            piece = [i for i in self.chess_pieces if i.token == piece.token][0]
+
+            self.move_object(
+                piece.token, hexagons.hex_to_pixel(self.layout, piece.position), move
+            )
+            self.take_piece(move)
+            # print(len(self.chess_pieces))
+            # print(piece.position)
+            # print(move)
+            if self.can_promote():
+                self.promote_bot(piece)
+            self.checkcheckmateorstalestalemate()
+            
+            self.color_to_move = "black" if self.color_to_move == "white" else "white"
+
+            # Update moved chess piece data
+            piece.position = move
+            piece.first_move = False
+
 
     def drag_start(self, event):
         """Begin drag of an object"""
@@ -96,21 +146,20 @@ class Example(tkinter.Frame):
             ),
         )
         for obj in self.chess_pieces:
-            if start_coords == obj.position and self.color_to_move == obj.color:
+            if (
+                start_coords == obj.position
+                and self.color_to_move == obj.color
+                and (self.opponent_player or self.color_to_move != self.bot_color)
+            ):
+                self._drag_data["moves"], _ = eval(f"obj.{obj.type}_move()")
 
-                # If object isn't a pawn, function name only last letter
-                if str(obj.type)[1] != 'p':
-                    look_for = str(obj.type)[1]
-                else:
-                    look_for = obj.type
-
-                self._drag_data["moves"] = eval(f"obj.{look_for}_move()")
                 self._drag_data["object"] = obj
                 for move in self._drag_data["moves"]:
                     # Draws all possible spaces for a move
                     self.create_temp_image(
                         hexagons.hex_to_pixel(self.layout, move), self.move_image
                     )
+                break
 
     def drag_stop(self, event):
         """End drag of an object"""
@@ -128,11 +177,18 @@ class Example(tkinter.Frame):
             and self.canvas.type(self._drag_data["item"]) != "polygon"
             and current_hex in self._drag_data["moves"]
             and self._drag_data["object"].color == self.color_to_move
+            and (self.opponent_player or self.color_to_move != self.bot_color)
         ):
             # eval(f'cur_object.{cur_type}_move()'):
             # object is in boundaries: lock it in the middle of hex
             # object also does a legal move
             # object itself is also not a hex
+            # gamemode is either pvp or it's black's turn
+
+            self.move_object(self._drag_data["item"], cur_coords, current_hex)
+            self.take_piece(current_hex)
+
+            # Update moved chess piece data
             self.move_object(cur_coords, current_hex)
 
             # chech if you can KILL
@@ -144,7 +200,6 @@ class Example(tkinter.Frame):
                 # self.canvas.move(self.canvas.find_closest(cpos[0], cpos[1])[0], -1000, -1000)
                 # self.canvas.move(self._drag_data['item'], 1000, 1000)
                 # takeable[0].deinit()
-
             self._drag_data["object"].position = current_hex
             self._drag_data["object"].first_move = False
             # Check all moves and see if any of them attacks the king
@@ -157,6 +212,15 @@ class Example(tkinter.Frame):
                 if king_piece.position in eval(f'cpm.Chessp.{typo}_move(pc)') and pc.color != king_piece.color:
                     self.checked = True
                     print('checked')
+
+            # Cycle the color to move
+            self.color_to_move = "black" if self.color_to_move == "white" else "white"
+
+            self.checkcheckmateorstalestalemate()
+
+            # Check for pawn promotion
+            if self.can_promote():
+                self.promote_pawn_ui(self._drag_data["object"])
 
             # Cycle the color to move
             self.color_to_move = "black" if self.color_to_move == "white" else "white"
@@ -179,6 +243,46 @@ class Example(tkinter.Frame):
         self._drag_data["previous"] = [0, 0]
         self._drag_data["moves"] = []
 
+        # Computer's turn
+        self.enemy_move()
+
+    def check_if_enemy_can_move(self) -> bool:
+        """Check if the enemy can move"""
+        can_move = False
+        for obj in self.chess_pieces:
+            if obj.color != self.color_to_move:
+                moves, _ = eval(f"obj.{obj.type}_move()")
+                if len(moves) != 0:
+                    can_move = True
+                    break
+        return can_move
+
+    def can_promote(self) -> bool:
+        """Check if a pawn can be promoted"""
+        if self._drag_data["object"].type == "wp":
+            if (
+                self._drag_data["object"].position[1] == -5
+                or self._drag_data["object"].position[2] == 5
+            ):
+                return True
+        elif self._drag_data["object"].type == "bp":
+            if (
+                self._drag_data["object"].position[1] == 5
+                or self._drag_data["object"].position[2] == -5
+            ):
+                return True
+        return False
+
+    def current_side_can_attack_king(self) -> bool:
+        """Check if the current side can attack the king"""
+        can_target_king = False
+        for obj in self.chess_pieces:
+            if obj.color == self.color_to_move:
+                _, can_target_king = eval(f"obj.{obj.type}_move()")
+                if can_target_king:
+                    break
+        return can_target_king
+
     def drag(self, event):
         """Handle dragging of an object"""
         # check if the object is not polygon (board)
@@ -194,3 +298,66 @@ class Example(tkinter.Frame):
             # record the new position
             self._drag_data["x"] = event.x
             self._drag_data["y"] = event.y
+
+    def promote_bot(self, piece):
+        """Promote a pawn for the bot to queen."""
+        new_type = "q"
+        position = piece.position
+        color = piece.color
+        token = piece.token
+        self.take_piece(position)
+        self.chess_pieces.append(
+            cpm.Chessp(
+                new_type,
+                color,
+                self.create_image_token(
+                    (hexagons.hex_to_pixel(self.layout, position)),
+                    self.piece_sprites[color][new_type],
+                    token,
+                ),
+                position,
+                True,
+                token,
+            )
+        )
+
+    def promote_pawn_ui(self, piece):
+        import tkinter
+
+        promotion_window = tkinter.Toplevel()
+        promotion_window.title("Promote Pawn")
+        label = tkinter.Label(
+            promotion_window,
+            text="Choose the piece to which you want to promote the pawn:",
+            font=("Comic Sans MS", 12),
+        )
+        label.pack(pady=10)
+
+        def promote(new_type):
+            position = piece.position
+            color = piece.color
+            token = piece.token
+            self.take_piece(position)
+            self.chess_pieces.append(
+                cpm.Chessp(
+                    new_type[0],
+                    color,
+                    self.create_image_token(
+                        (hexagons.hex_to_pixel(self.layout, position)),
+                        self.piece_sprites[color][new_type[0]],
+                        token,
+                    ),
+                    position,
+                    True,
+                    token,
+                )
+            )
+            promotion_window.destroy()
+
+        for new_type in ["queen", "rook", "bishop", "knight"]:
+            btn = tkinter.Button(
+                promotion_window,
+                text=new_type.capitalize(),
+                command=lambda nt=new_type: promote(nt),
+            )
+            btn.pack(anchor="w", padx=10, pady=5)
