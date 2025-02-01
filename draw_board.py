@@ -88,8 +88,7 @@ def load_pieces(
     ]
     bottom_piece_postions["n"] = [Hex(-2, 5, -3), Hex(2, 3, -5)]
     bottom_piece_postions["r"] = [Hex(-3, 5, -2), Hex(3, 2, -5)]
-    bottom_piece_postions["q"] = [Hex(-1, 5, -4)]
-    bottom_piece_postions["k"] = [Hex(1, 4, -5)]
+
 
 
     # Create dict of white piece positions and their images.
@@ -128,15 +127,32 @@ def load_pieces(
     ]
     top_piece_postions["n"] = [Hex(2, -5, 3), Hex(-2, -3, 5)]
     top_piece_postions["r"] = [Hex(3, -5, 2), Hex(-3, -2, 5)]
-    top_piece_postions["q"] = [Hex(1, -5, 4)]
-    top_piece_postions["k"] = [Hex(-1, -4, 5)]
+
 
     if not white_at_bottom:
+        bottom_piece_postions["q"] = [Hex(1, 4, -5)]
+        bottom_piece_postions["k"] = [Hex(-1, 5, -4)]
+        top_piece_postions["k"] = [Hex(-1, -4, 5)]
+        top_piece_postions["q"] = [Hex(1, -5, 4)]
         place_pieces(bottom_piece_postions, black_piece_sprites, "b", something)
         place_pieces(top_piece_postions, white_piece_sprites, "w", something)
     else:
+        bottom_piece_postions["k"] = [Hex(1, 4, -5)]
+        bottom_piece_postions["q"] = [Hex(-1, 5, -4)]
+        top_piece_postions["q"] = []
+        top_piece_postions["k"] = [Hex(1, -5, 4)]
+        top_piece_postions["n"] = []
+        top_piece_postions["r"] = []
+        top_piece_postions["b"] = []
+        top_piece_postions["bp"] = []
         place_pieces(bottom_piece_postions, white_piece_sprites, "w", something)
         place_pieces(top_piece_postions, black_piece_sprites, "b", something)
+        # bottom_piece_postions["k"] = [Hex(1, 4, -5)]
+        # bottom_piece_postions["q"] = [Hex(-1, 5, -4)]
+        # top_piece_postions["q"] = [Hex(-1, -4, 5)]
+        # top_piece_postions["k"] = [Hex(1, -5, 4)]
+        # place_pieces(bottom_piece_postions, white_piece_sprites, "w", something)
+        # place_pieces(top_piece_postions, black_piece_sprites, "b", something)
 
     something.chess_pieces = cpm.Chessp.chess_pieces
 

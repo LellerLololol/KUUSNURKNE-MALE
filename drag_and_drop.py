@@ -128,10 +128,8 @@ class ChessBoardInteraction(tkinter.Frame):
 
             # TODO: Add check for checkmate and stalemate here
             # Not working
-            _, can_target_king = eval(
-                f'self._drag_data["object"].{self._drag_data["object"].type}_move()'
-            )
             # print(can_target_king)
+            can_target_king = self.current_side_can_attack_king
             enemy_can_move = self.check_if_enemy_can_move()
             # print(enemy_can_move)
             if not enemy_can_move:
@@ -190,6 +188,16 @@ class ChessBoardInteraction(tkinter.Frame):
                     can_move = True
                     break
         return can_move
+    
+    def current_side_can_attack_king(self) -> bool:
+        """Check if the current side can attack the king"""
+        can_target_king = False
+        for obj in self.chess_pieces:
+            if obj.color == self.color_to_move:
+                _, can_target_king = eval(f"obj.{obj.type}_move()")
+                if can_target_king:
+                    break
+        return can_target_king
 
     def drag(self, event):
         """Handle dragging of an object"""

@@ -302,9 +302,6 @@ class Chessp:
 
     def q_move(self, chess_pieces: list = None):
         """Gives all possible queen moves"""
-        if self.check_if_2_pieces_overlapping(chess_pieces):
-            return [], False
-
         valid_spaces, king_check = self.r_move(chess_pieces)
         b_moves, king_check2 = self.b_move(chess_pieces)
         king_check = king_check or king_check2
